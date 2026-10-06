@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""窗口助手：通过 GNOME 扩展 winrects@cua 的 DBus 接口列出/激活窗口。
+
+用法：
+  window-find-focus ids                      列出所有窗口 id（每行一个）
+  window-find-focus list                     列出 id 与标题
+  window-find-focus focus --id N             激活指定 id
+  window-find-focus focus --title-substring S  激活标题包含 S 的第一个窗口
+退出码：0 成功；1 没找到/激活失败；2 用法错误
+
+扩展（winrects@cua）未启用或不可用时，所有命令都会返回失败，
+调用方据此降级为"直接新开窗口"。
+"""
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+
+DEST = "org.cua.WinRects"
+PATH = "/org/cua/WinRects"
+
+
+def _gdbus(method: str, *args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["gdbus", "call", "--session", "--dest", DEST, "--object-path", PATH,
+             "--method", f"org.cua.WinRects.{method}", *args],
+            capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return result.stdout.strip()
+
+
+def rects() -> list[dict]:
+    raw = _gdbus("GetRects")
+    start, end = raw.find("["), raw.rfind("]")
+    if start < 0 or end < 0:
+        return []
+    try:
+        data = json.loads(raw[start:end + 1])
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def activate(window_id: int) -> bool:
+    return "true" in _gdbus("Activate", str(window_id))
+
+
+def main() -> int:
+    argv = sys.argv[1:]
+    if not argv:
+        return 2
+    command = argv[0]
+
+    if command == "ids":
+        print("\n".join(str(w.get("id")) for w in rects()))
+        return 0
+
+    if command == "list":
+        for window in rects():
+            print(window.get("id"), window.get("title"))
+        return 0
+
+    if command == "focus":
+        rest = argv[1:]
+        window_id: int | None = None
+        if "--id" in rest:
+            try:
+                window_id = int(rest[rest.index("--id") + 1])
+            except (IndexError, ValueError):
+                return 2
+            if not any(str(w.get("id")) == str(window_id) for w in rects()):
+                return 1
+        elif "--title-substring" in rest:
+            needle = rest[rest.index("--title-substring") + 1]
+            for window in rects():
+                if needle and needle in (window.get("title") or ""):
+                    window_id = int(window["id"])
+                    break
+            if window_id is None:
+                return 1
+        else:
+            return 2
+        return 0 if activate(window_id) else 1
+
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------------------
+# Commit message template (see CONTRIBUTING.md → 提交信息规范)
+# All commit messages must be in ENGLISH and follow Conventional Commits.
+#
+# <type>(<scope>): <subject>
+#   types : feat fix docs refactor perf test build ci chore style revert
+#   scopes: keymap tray inject udev systemd launcher window install docs tools branding
+#   subject: imperative mood, lowercase, no trailing period, <= 72 chars
+# ---------------------------------------------------------------------------
+
+# Why it changed (optional, wrap at 72 chars):
+
+# Footer (optional): BREAKING CHANGE: … / Closes #12 / Refs #34

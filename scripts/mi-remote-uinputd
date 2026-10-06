@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""MiRemote uinput 注入守护进程（ydotoold 的替代实现）。
+
+背景：GNOME (Mutter) 不实现 wtype 依赖的 zwp_virtual_keyboard 协议，
+xdotool 在 Wayland 下也不可用，因此按键注入只能走内核 uinput。
+
+设计：常驻进程持有**一个**虚拟输入设备（避免每次按键都创建/销毁设备，
+那会导致约 2 秒/次的延迟）；客户端通过 unix socket 发送一行一个 JSON。
+
+协议（换行分隔 JSON，每条命令回一行 ack）：
+  {"cmd":"key","code":<evdev code>,"value":0|1}
+  {"cmd":"mousemove","dx":<int>,"dy":<int>}
+  {"cmd":"click","code":<evdev BTN code>}
+  {"cmd":"ping"}
+"""
+from __future__ import annotations
+
+import json
+import os
+import socket
+import sys
+
+try:
+    from evdev import UInput, ecodes as e
+except ImportError:  # 需要能 import evdev 的解释器（mi-remote 的 venv python）
+    sys.stderr.write(
+        "mi-remote-uinputd 需要 evdev 库；请用 mi-remote 的 venv python 运行：\n"
+        "  ~/.local/share/mi-remote-linux/versions/*/bin/python3 mi-remote-uinputd\n"
+    )
+    raise SystemExit(2)
+
+SOCKET_PATH = os.path.join(
+    os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "mi-remote-uinput.sock"
+)
+
+
+def create_device() -> UInput:
+    capabilities = {
+        # 覆盖全部按键码（含 BTN_LEFT/BTN_RIGHT 等鼠标键）
+        e.EV_KEY: list(range(1, 0x300)),
+        e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL, e.REL_HWHEEL],
+    }
+    return UInput(capabilities, name="MiRemote Virtual Input", version=1)
+
+
+def handle(ui: UInput, message: dict) -> None:
+    command = message.get("cmd")
+    if command == "key":
+        ui.write(e.EV_KEY, int(message["code"]), int(message["value"]))
+        ui.syn()
+    elif command == "mousemove":
+        dx, dy = int(message.get("dx", 0)), int(message.get("dy", 0))
+        if dx:
+            ui.write(e.EV_REL, e.REL_X, dx)
+        if dy:
+            ui.write(e.EV_REL, e.REL_Y, dy)
+        ui.syn()
+    elif command == "click":
+        code = int(message["code"])
+        ui.write(e.EV_KEY, code, 1)
+        ui.syn()
+        ui.write(e.EV_KEY, code, 0)
+        ui.syn()
+    elif command == "ping":
+        pass
+    else:
+        raise ValueError(f"unknown command: {command!r}")
+
+
+def main() -> int:
+    if os.path.exists(SOCKET_PATH):
+        try:
+            os.unlink(SOCKET_PATH)
+        except OSError:
+            pass
+
+    ui = create_device()
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    server.bind(SOCKET_PATH)
+    os.chmod(SOCKET_PATH, 0o600)
+    server.listen(16)
+
+    print(f"mi-remote-uinputd ready: {SOCKET_PATH}", file=sys.stderr, flush=True)
+
+    while True:
+        connection, _ = server.accept()
+        with connection:
+            stream = connection.makefile("rwb")
+            for raw in stream:
+                raw = raw.strip()
+                if not raw:
+                    continue
+                try:
+                    handle(ui, json.loads(raw))
+                    ack: dict = {"ok": True}
+                except Exception as exc:  # 单条命令失败不影响守护进程
+                    ack = {"ok": False, "error": str(exc)}
+                stream.write((json.dumps(ack) + "\n").encode())
+                stream.flush()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

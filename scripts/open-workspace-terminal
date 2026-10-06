@@ -1,0 +1,17 @@
+#!/bin/bash
+# 在指定目录打开一个普通终端（遥控器"启动层"备用）
+# 用法: open-workspace-terminal [目录]
+set -euo pipefail
+
+TARGET="${1:-${OPENCODE_WORKSPACE:-/home/chenwei/Workspace}}"
+[ -d "$TARGET" ] || TARGET="$HOME"
+
+LOG="$HOME/.local/state/mi-remote-launch.log"
+mkdir -p "$(dirname "$LOG")"
+printf '%s  launch Terminal dir=%s\n' "$(date '+%F %T')" "$TARGET" >>"$LOG"
+
+exec /usr/bin/gnome-terminal \
+  --maximize \
+  --working-directory="$TARGET" \
+  --title="终端 · $(basename "$TARGET")" \
+  -- bash -l

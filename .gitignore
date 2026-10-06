@@ -1,0 +1,14 @@
+# Flutter / Dart
+app/build/
+app/.dart_tool/
+app/.flutter-plugins*
+app/linux/flutter/ephemeral/
+.packages
+pubspec.lock
+
+# 本机状态（不要提交）
+*.bak
+*.bak-*
+!system/mapping.json.with-*.bak
+~*
+.DS_Store

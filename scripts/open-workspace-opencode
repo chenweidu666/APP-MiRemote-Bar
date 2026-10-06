@@ -1,0 +1,56 @@
+#!/bin/bash
+# 在指定目录启动 OpenCode CLI（窗口最大化）。
+# 若该目录的 OpenCode 窗口已存在 → 直接拉到前台，不重复开窗。
+#
+# 窗口识别：OpenCode 会把终端标题改成 "OC | <会话名>"，无法按目录区分，
+# 因此用"首次启动时记录窗口 id"的方式跟踪（记录文件按目录做哈希）。
+# 依赖 GNOME 扩展 winrects@cua；扩展不可用时自动降级为"每次都新开"。
+#
+# 用法: open-workspace-opencode [目录]
+set -euo pipefail
+
+TARGET="${1:-${OPENCODE_WORKSPACE:-/home/chenwei/Workspace}}"
+[ -d "$TARGET" ] || TARGET="$HOME"
+
+HELPER="$HOME/.local/bin/window-find-focus"
+STATE="$HOME/.local/state/mi-remote"
+LOG="$HOME/.local/state/mi-remote-launch.log"
+mkdir -p "$STATE" "$(dirname "$LOG")"
+
+KEY=$(printf '%s' "$TARGET" | md5sum | cut -c1-10)
+IDFILE="$STATE/opencode-window-$KEY.id"
+
+# 1) 该目录的窗口已存在 → 拉到前台
+if [ -s "$IDFILE" ] && [ -x "$HELPER" ]; then
+  id=$(cat "$IDFILE")
+  if "$HELPER" focus --id "$id" >/dev/null 2>&1; then
+    printf '%s  focus  OpenCode  dir=%s  window=%s\n' "$(date '+%F %T')" "$TARGET" "$id" >>"$LOG"
+    exit 0
+  fi
+fi
+
+# 2) 记录现有窗口 id 集合，然后新开
+BEFORE=""
+[ -x "$HELPER" ] && BEFORE=$("$HELPER" ids 2>/dev/null | tr '\n' ' ' || true)
+printf '%s  launch OpenCode  dir=%s\n' "$(date '+%F %T')" "$TARGET" >>"$LOG"
+
+# 3) 后台等新窗口出现并记住它的 id（不阻塞遥控器按键响应）
+if [ -x "$HELPER" ]; then
+  (
+    for _ in $(seq 1 25); do
+      sleep 1
+      NEW=$(comm -13 <(printf '%s\n' $BEFORE | sort) <("$HELPER" ids 2>/dev/null | sort) | grep -v '^$' | head -1)
+      if [ -n "${NEW:-}" ]; then
+        printf '%s' "$NEW" >"$IDFILE"
+        break
+      fi
+    done
+  ) >/dev/null 2>&1 &
+fi
+
+# 4) 新开窗口（最大化）
+exec /usr/bin/gnome-terminal \
+  --maximize \
+  --working-directory="$TARGET" \
+  --title="OpenCode · $(basename "$TARGET")" \
+  -- bash -lc 'exec opencode'

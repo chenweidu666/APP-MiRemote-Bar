@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=OpenCode Workspace
+Name[zh_CN]=OpenCode（Workspace）
+Comment=Launch OpenCode CLI in ~/Workspace
+Comment[zh_CN]=在 Workspace 目录启动 OpenCode CLI
+Exec=/home/chenwei/.local/bin/open-workspace-opencode /home/chenwei/Workspace
+Icon=utilities-terminal
+Terminal=false
+Categories=Development;
+Keywords=opencode;terminal;workspace;ai;
+StartupNotify=true

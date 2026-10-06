@@ -1,0 +1,18 @@
+#!/bin/bash
+# 连续删除：把 Backspace 按住不放 SECONDS 秒 → 借系统按键自动重复实现"快速连删"
+#
+# 为什么这么做：项目把"长按返回"硬编码成只发一次 Backspace（防误清空），
+# 想连续删就得让这个键真正"按住"——按住时由 GNOME 的按键重复来产生连删。
+#
+# 用法: backspace-burst [秒数=1.2]
+#   Backspace = evdev 14
+set -euo pipefail
+
+SECONDS_HOLD="${1:-1.2}"
+Y="$HOME/.local/bin/ydotool"
+
+release() { "$Y" key 14:0 >/dev/null 2>&1 || true; }
+trap release EXIT
+
+"$Y" key 14:1        # 按住 Backspace（不松开）
+sleep "$SECONDS_HOLD"

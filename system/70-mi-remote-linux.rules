@@ -1,0 +1,11 @@
+# 小米蓝牙语音遥控器（RC003, BLE HID）——活动会话用户可直接读取按键事件
+#
+# 注意：这款遥控器的 HID 设备名会变（实测出现过 "小米蓝牙语音遥控器" 和 "MI RC"），
+# 而它的父级 uhid 虚拟设备**没有 idVendor/idProduct 属性**，所以不能按 VID:PID 匹配。
+# 因此这里同时按已知名称匹配，并加一条"所有通过 uhid 暴露的输入设备"兜底。
+SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="小米蓝牙语音遥控器", TAG+="uaccess"
+SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="MI RC", TAG+="uaccess"
+# 兜底：BLE HID（uhid）下的所有输入设备（含本遥控器与蓝牙鼠标）
+SUBSYSTEM=="input", KERNEL=="event*", DEVPATH=="*/misc/uhid/*/input/input*/event*", TAG+="uaccess"
+# uinput 供过滤转发按键的虚拟设备使用
+KERNEL=="uinput", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"

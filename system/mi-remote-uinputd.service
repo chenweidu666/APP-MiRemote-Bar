@@ -1,0 +1,13 @@
+[Unit]
+Description=MiRemote uinput injection daemon (ydotoold replacement)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/chenwei/.local/share/mi-remote-linux/versions/0.4.1/bin/python3 /home/chenwei/.local/bin/mi-remote-uinputd
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

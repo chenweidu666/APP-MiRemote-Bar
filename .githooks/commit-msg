@@ -1,0 +1,38 @@
+#!/bin/sh
+# Enforce the commit message convention (CONTRIBUTING.md → 提交信息规范):
+#   - English only (ASCII)
+#   - Conventional Commits: <type>(<scope>): <subject>, subject <= 72 chars
+# Enable with:    git config core.hooksPath .githooks
+# Skip once with: git commit --no-verify
+
+msg_file="$1"
+subject=$(head -n 1 "$msg_file")
+
+# Let generated / merge style messages through
+case "$subject" in
+  "Merge "*|"Revert "*|"fixup!"*|"squash!"*|"amend!"*) exit 0 ;;
+esac
+
+if [ -z "$subject" ]; then
+  echo "✖ Empty commit message. Expected: <type>(<scope>): <subject>" >&2
+  exit 1
+fi
+
+if printf '%s' "$subject" | LC_ALL=C grep -q '[^ -~]'; then
+  echo "✖ Commit messages must be in ENGLISH (non-ASCII found): $subject" >&2
+  exit 1
+fi
+
+if ! printf '%s' "$subject" | grep -Eq '^(feat|fix|docs|refactor|perf|test|build|ci|chore|style|revert)(\([a-z0-9._/-]+\))?!?: [a-z0-9].*$'; then
+  echo "✖ Not a Conventional Commit: $subject" >&2
+  echo "  Expected: <type>(<scope>): <subject>" >&2
+  echo "  Example : feat(keymap): map power hold to Alt+F4" >&2
+  exit 1
+fi
+
+if [ "${#subject}" -gt 72 ]; then
+  echo "✖ Subject too long (${#subject} > 72 chars): $subject" >&2
+  exit 1
+fi
+
+exit 0

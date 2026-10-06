@@ -1,0 +1,55 @@
+#!/bin/bash
+# GNOME 窗口切换器（可遍历所有窗口）
+#
+# 原理：按下 Alt 并保持，同时发一次 Tab 弹出 GNOME 切换器；
+#       期间用 ← / → 在所有窗口间移动选择（或再调用本脚本前进一个）；
+#       **距上次操作超过 HOLD 秒**才自动松开 Alt 完成选定 —— "你不动了才收尾"。
+#       每次再调用本脚本 = 前进一个窗口 + 顺延计时。
+#
+# Alt 一定会被释放：正常超时收尾；脚本被中断/服务重启时由 trap 兜底。
+#
+# 用法: window-switcher [闲置秒数=8]
+set -euo pipefail
+
+HOLD="${1:-8}"
+Y="$HOME/.local/bin/ydotool"
+STATE="$HOME/.local/state/mi-remote"
+LOCK="$STATE/switcher.lock"
+LOG="$HOME/.local/state/mi-remote-launch.log"
+mkdir -p "$STATE" "$(dirname "$LOG")"
+
+# 首轮调用负责收尾：松开 Alt 并清理锁
+cleanup() {
+  "$Y" key 56:0 >/dev/null 2>&1 || true
+  rm -f "$LOCK"
+}
+trap cleanup EXIT
+
+now=$(date +%s)
+if [ -f "$LOCK" ]; then
+  started=$(stat -c %Y "$LOCK" 2>/dev/null || echo 0)
+  if [ $((now - started)) -lt "$HOLD" ]; then
+    # 切换器已开着 → 前进一个窗口，并顺延闲置计时
+    "$Y" key 56:1 15:1 15:0
+    touch "$LOCK"
+    printf '%s  switcher next  (顺延计时)\n' "$(date '+%F %T')" >>"$LOG"
+    trap - EXIT          # 收尾交给最初那次调用
+    exit 0
+  fi
+  rm -f "$LOCK"          # 过期残留，清理
+fi
+
+# 首轮：弹切换器 + 提示
+touch "$LOCK"
+printf '%s  switcher open  hold=%ss\n' "$(date '+%F %T')" "$HOLD" >>"$LOG"
+"$Y" key 56:1 15:1 15:0
+if command -v notify-send >/dev/null; then
+  notify-send -t 3000 "MiRemote · 窗口切换器" \
+    "用 ← / → 选择窗口；停止操作 ${HOLD} 秒后自动选定（再长按菜单 = 下一个）" || true
+fi
+sleep 0.3                # 等切换器拿到键盘，避免头几个方向键落到窗口里
+
+# 闲置计时：只要距上次活动不超过 HOLD 秒就继续等着
+while [ $(( $(date +%s) - $(stat -c %Y "$LOCK" 2>/dev/null || echo 0) )) -lt "$HOLD" ]; do
+  sleep 0.5
+done

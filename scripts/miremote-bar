@@ -1,0 +1,3 @@
+#!/bin/bash
+# 启动 MiRemote Bar 托盘应用（bundle 由 install.sh 装到 ~/.local/share/miremote-bar）
+exec "$HOME/.local/share/miremote-bar/miremote_bar" "$@"

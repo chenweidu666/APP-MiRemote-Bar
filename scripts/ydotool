@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""ydotool 兼容垫片：把 mi-remote 的 ydotool 调用转发给 uinput 守护进程。
+
+为什么需要：GNOME (Mutter) 不支持 wtype 的虚拟键盘协议，xdotool 在 Wayland
+也不可用；而 Ubuntu 的 ydotool 包只带客户端、不带 ydotoold 守护进程。
+本垫片与 mi-remote-uinputd 配合，走内核 uinput 注入，Wayland 下稳定可用。
+
+只实现 mi-remote 实际用到的三个子命令：
+  ydotool key <code>:<value> ...      # 按 evdev 码值按下/抬起
+  ydotool mousemove -x N -y N         # 相对移动指针
+  ydotool click <BTN code>            # 点击
+"""
+from __future__ import annotations
+
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+
+SOCKET_PATH = os.path.join(
+    os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "mi-remote-uinput.sock"
+)
+DAEMON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mi-remote-uinputd")
+
+
+def _find_daemon_interpreter() -> str:
+    """守护进程需要 evdev 库，因此优先使用 mi-remote 的 venv python。"""
+    versions = os.path.expanduser("~/.local/share/mi-remote-linux/versions")
+    candidates = sorted(
+        (os.path.join(versions, name, "bin/python3") for name in os.listdir(versions)),
+        reverse=True,
+    ) if os.path.isdir(versions) else []
+    candidates.append(sys.executable)
+    for candidate in candidates:
+        if not candidate or not os.path.exists(candidate):
+            continue
+        try:
+            subprocess.run(
+                [candidate, "-c", "import evdev"],
+                check=True,
+                timeout=15,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return candidate
+        except Exception:  # noqa: BLE001 - 候选不可用则试下一个
+            continue
+    return sys.executable
+
+
+def connect() -> socket.socket:
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.connect(SOCKET_PATH)
+    return sock
+
+
+def ensure_daemon() -> socket.socket:
+    """优先连接已运行的守护进程；没有则拉起一个再连。"""
+    for _ in range(2):
+        try:
+            return connect()
+        except OSError:
+            # 用能 import evdev 的解释器启动守护进程（venv python），
+            # 不依赖 shebang 里的 python3（可能是没有 evdev 的 conda python）。
+            subprocess.Popen(
+                [_find_daemon_interpreter(), DAEMON],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+            for _ in range(60):
+                time.sleep(0.05)
+                try:
+                    return connect()
+                except OSError:
+                    pass
+    print("ydotool(shim): 无法连接 mi-remote-uinputd", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def parse(argv: list[str]) -> list[dict]:
+    if not argv:
+        raise SystemExit("ydotool(shim): 缺少子命令")
+    command, rest = argv[0], argv[1:]
+
+    if command == "key":
+        messages = []
+        for item in rest:
+            code, _, value = item.partition(":")
+            messages.append({"cmd": "key", "code": int(code), "value": int(value or 1)})
+        return messages
+
+    if command == "mousemove":
+        options: dict[str, str] = {}
+        index = 0
+        while index + 1 < len(rest):
+            options[rest[index]] = rest[index + 1]
+            index += 2
+        return [
+            {
+                "cmd": "mousemove",
+                "dx": int(options.get("-x", 0)),
+                "dy": int(options.get("-y", 0)),
+            }
+        ]
+
+    if command == "click":
+        return [{"cmd": "click", "code": int(rest[0])}]
+
+    print(f"ydotool(shim): 不支持的子命令 {command!r}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def main() -> int:
+    messages = parse(sys.argv[1:])
+    sock = ensure_daemon()
+    try:
+        stream = sock.makefile("rwb")
+        for message in messages:
+            stream.write((json.dumps(message) + "\n").encode())
+            stream.flush()
+            ack = stream.readline()
+            if not ack:
+                print("ydotool(shim): 守护进程无响应", file=sys.stderr)
+                return 1
+            payload = json.loads(ack)
+            if not payload.get("ok"):
+                print(f"ydotool(shim): {payload.get('error')}", file=sys.stderr)
+                return 1
+    finally:
+        sock.close()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

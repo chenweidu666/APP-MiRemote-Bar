@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="900" viewBox="0 0 1560 900">
+<rect width="1560" height="900" fill="#f7f8f7"/>
+<text x="46" y="66" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="34" font-weight="600" fill="#1b1f23">MiRemote Bar · 键位映射</text>
+<text x="46" y="98" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#5c6672">小米蓝牙遥控器 2 Pro（RC003 · BLE VID:PID 2717:32b8）→ Linux 桌面 · 由 mapping.json 自动生成</text>
+<rect x="96" y="140" width="230" height="660" rx="30" fill="#e9ebee" stroke="#c9ced6" stroke-width="2"/>
+<circle cx="176" cy="210" r="30" fill="#272b31"/>
+<text x="176" y="215" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">电源</text>
+<circle cx="246" cy="210" r="30" fill="#272b31"/>
+<text x="246" y="215" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">语音</text>
+<circle cx="211" cy="392" r="98" fill="#272b31"/>
+<circle cx="211" cy="392" r="34" fill="#3a4048" stroke="#4b525b" stroke-width="2"/>
+<text x="211" y="398" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#f2f4f6" text-anchor="middle">OK</text>
+<text x="211" y="315" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="21" fill="#f2f4f6" text-anchor="middle">↑</text>
+<text x="211" y="483" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="21" fill="#f2f4f6" text-anchor="middle">↓</text>
+<text x="127" y="399" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="21" fill="#f2f4f6" text-anchor="middle">←</text>
+<text x="295" y="399" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="21" fill="#f2f4f6" text-anchor="middle">→</text>
+<circle cx="160" cy="560" r="30" fill="#272b31"/>
+<text x="160" y="565" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">返回</text>
+<circle cx="160" cy="640" r="30" fill="#272b31"/>
+<text x="160" y="645" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">主页</text>
+<circle cx="160" cy="720" r="30" fill="#272b31"/>
+<text x="160" y="725" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">菜单</text>
+<text x="211" y="836" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="13" fill="#8a939e" text-anchor="middle">遥控器按键位置示意</text>
+<rect x="232" y="528" width="58" height="128" rx="29" fill="#272b31"/>
+<text x="261" y="572" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="19" fill="#f2f4f6" text-anchor="middle">＋</text>
+<text x="261" y="632" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="19" fill="#f2f4f6" text-anchor="middle">－</text>
+<circle cx="261" cy="720" r="30" fill="#272b31"/>
+<text x="261" y="725" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" fill="#f2f4f6" text-anchor="middle">TV</text>
+<text x="452" y="860" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="13" fill="#8a939e">本图由 tools/gen-keymap-image.py 读取 system/mapping.json 自动生成 —— 键位改了重跑一次即可</text>
+<rect x="422" y="134" width="962" height="684" rx="16" fill="#ffffff" stroke="#e2e6ea"/>
+<text x="452" y="172" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" font-weight="600" fill="#5c6672">按键</text>
+<text x="584" y="172" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" font-weight="600" fill="#5c6672">短按</text>
+<text x="922" y="172" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" font-weight="600" fill="#5c6672">长按（≥350ms）</text>
+<text x="1194" y="172" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="16" font-weight="600" fill="#5c6672">双击</text>
+<line x1="452" y1="186" x2="1352" y2="186" stroke="#e2e6ea" stroke-width="2"/>
+<text x="452" y="232" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">电源</text>
+<text x="584" y="232" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">Esc</text>
+<text x="922" y="232" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">Alt+F4</text>
+<text x="1194" y="232" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="247" x2="1352" y2="247" stroke="#f0f2f4"/>
+<text x="452" y="278" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">语音</text>
+<text x="584" y="278" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">按住口述</text>
+<text x="922" y="278" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="278" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="293" x2="1352" y2="293" stroke="#f0f2f4"/>
+<text x="452" y="324" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">上</text>
+<text x="584" y="324" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">↑</text>
+<text x="922" y="324" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="324" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="339" x2="1352" y2="339" stroke="#f0f2f4"/>
+<text x="452" y="370" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">下</text>
+<text x="584" y="370" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">↓</text>
+<text x="922" y="370" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="370" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="385" x2="1352" y2="385" stroke="#f0f2f4"/>
+<text x="452" y="416" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">左</text>
+<text x="584" y="416" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">←</text>
+<text x="922" y="416" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="416" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="431" x2="1352" y2="431" stroke="#f0f2f4"/>
+<text x="452" y="462" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">右</text>
+<text x="584" y="462" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">→</text>
+<text x="922" y="462" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="462" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="477" x2="1352" y2="477" stroke="#f0f2f4"/>
+<text x="452" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">OK</text>
+<text x="584" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">Enter</text>
+<text x="922" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="523" x2="1352" y2="523" stroke="#f0f2f4"/>
+<text x="452" y="554" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">返回</text>
+<text x="584" y="554" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">删除一个</text>
+<text x="922" y="554" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="554" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="569" x2="1352" y2="569" stroke="#f0f2f4"/>
+<text x="452" y="600" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">主页</text>
+<text x="584" y="600" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">—</text>
+<text x="922" y="600" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="600" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">打开 OpenCode</text>
+<line x1="452" y1="615" x2="1352" y2="615" stroke="#f0f2f4"/>
+<text x="452" y="646" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">菜单</text>
+<text x="584" y="646" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">Ctrl+P</text>
+<text x="922" y="646" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">窗口切换器</text>
+<text x="1194" y="646" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="661" x2="1352" y2="661" stroke="#f0f2f4"/>
+<text x="452" y="692" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">TV</text>
+<text x="584" y="692" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">Ctrl+B</text>
+<text x="922" y="692" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="692" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">打开 Cursor</text>
+<line x1="452" y1="707" x2="1352" y2="707" stroke="#f0f2f4"/>
+<text x="452" y="738" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">音量＋</text>
+<text x="584" y="738" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">PageUp</text>
+<text x="922" y="738" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="738" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+<line x1="452" y1="753" x2="1352" y2="753" stroke="#f0f2f4"/>
+<text x="452" y="784" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">音量－</text>
+<text x="584" y="784" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">PageDown</text>
+<text x="922" y="784" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="1194" y="784" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
+</svg>

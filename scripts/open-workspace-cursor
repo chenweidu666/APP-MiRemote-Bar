@@ -1,0 +1,26 @@
+#!/bin/bash
+# 用 Cursor 打开指定目录（默认 ~/Workspace）。
+# 若该目录已经在 Cursor 里打开 → 直接把那个窗口拉到前台（不重复开）。
+# 窗口识别：标题形如 "<文件> - <目录名> - Cursor"，用 winrects@cua 扩展激活。
+#
+# 用法: open-workspace-cursor [目录]
+set -euo pipefail
+
+TARGET="${1:-${OPENCODE_WORKSPACE:-/home/chenwei/Workspace}}"
+[ -d "$TARGET" ] || TARGET="$HOME"
+
+HELPER="$HOME/.local/bin/window-find-focus"
+LOG="$HOME/.local/state/mi-remote-launch.log"
+mkdir -p "$(dirname "$LOG")"
+
+BASE=$(basename "$TARGET")
+
+# 1) 已有该目录的 Cursor 窗口 → 拉到前台
+if [ -x "$HELPER" ] && "$HELPER" focus --title-substring " - ${BASE} - Cursor" >/dev/null 2>&1; then
+  printf '%s  focus  Cursor    dir=%s\n' "$(date '+%F %T')" "$TARGET" >>"$LOG"
+  exit 0
+fi
+
+# 2) 否则新开（窗口大小交由 Cursor 决定：手动最大化一次后它会记住该工作区）
+printf '%s  launch Cursor    dir=%s\n' "$(date '+%F %T')" "$TARGET" >>"$LOG"
+exec /usr/bin/cursor "$TARGET"

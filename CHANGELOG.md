@@ -50,6 +50,7 @@
 
 ### 修复（Fixed）
 
+- 语音识别乱码：默认 `--gain 6` 把遥控麦削波（峰值顶满 32768）→ 服务改为 `--gain 0`
 - GNOME 下按键注入全线失效：Mutter 不实现 `wtype` 依赖的虚拟键盘协议 → 卸载 wtype + 自写 uinput 垫片
 - 官方安装器（v0.4.1）venv shebang 残留临时目录导致装完无法执行 → 批量改写 shebang
 - 终端里语音粘贴无效 → 服务参数 `--paste-shortcut ctrl-shift-v`

@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton"></p>
+<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton Mi"></p>
 
-# Baton · Xiaomi BLE Voice Remote → Linux Desktop
+# Baton Mi · Xiaomi BLE Voice Remote → Linux Desktop
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%2F%20GNOME%20Wayland-blue)
@@ -9,7 +9,7 @@
 
 **English** · [中文说明](README.zh-CN.md)
 
-**Vibe-code from the couch.** Baton turns a cheap Xiaomi Bluetooth voice remote into a hands-free controller
+**Vibe-code from the couch.** Baton Mi turns a cheap Xiaomi Bluetooth voice remote into a hands-free controller
 for your AI coding agent on Linux: **hold to talk** (offline speech-to-text), **tap to interrupt** the model,
 and **switch windows** between the agent, the editor and the browser — without touching the keyboard.
 

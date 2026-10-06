@@ -209,7 +209,7 @@ def notify_asr_down(reason: str) -> None:
             [
                 "notify-send",
                 "-a",
-                "Baton",
+                "Baton Mi",
                 "-u",
                 "critical",
                 "-t",

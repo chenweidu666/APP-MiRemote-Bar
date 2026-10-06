@@ -13,7 +13,7 @@
 - **开源化包装**：双语 README（`README.md` 英文 / `README.zh-CN.md` 中文）、`LICENSE`(MIT)、`CHANGELOG.md`、
   `CONTRIBUTING.md`、`THIRD_PARTY.md`（第三方组件与许可证清单）、**键位图**（脚本随配置自动生成）
 
-- **托盘应用 Baton**（Flutter，纯托盘无窗口）
+- **托盘应用 Baton Mi**（Flutter，纯托盘无窗口）
   - 三层连接状态：蓝牙链路 / HID 按键节点 / 服务与注入守护
   - 图标三态：🟢 正常 · 🟡 按键可用但语音未连 · 🔴 服务或按键异常
   - 菜单：状态展示 · **键位速查 ▸**（实时读 `mapping.json` 生成）· 重新检测 · 重启服务 · 重连蓝牙 · 查看日志 · 打开文档 · 退出
@@ -29,6 +29,8 @@
 - **install.sh**：一键部署/更新（幂等；udev 已最新时跳过、无需 sudo；支持 `SUDO_PASS=`）
 
 ### 变更（Changed）
+
+- 对外名称改为 **Baton Mi**（Mi = 小米语音遥控）
 
 - 文档合并：`docs/键位表.md` + `docs/适配流程.md` + `docs/需求.md` → 单份 [`docs/指南.md`](docs/指南.md)
   （第 1 章键位表 · 第 2 章适配流程与踩坑 · 第 3 章路线图；已回退功能不再写成操作指南）

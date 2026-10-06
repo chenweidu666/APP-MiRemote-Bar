@@ -15,7 +15,7 @@ struct _MyApplication {
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
 // Called when first Flutter frame received.
-// Baton 是纯托盘应用：故意不显示窗口（窗口已 realize，Flutter 正常渲染）。
+// Baton Mi 是纯托盘应用：故意不显示窗口（窗口已 realize，Flutter 正常渲染）。
 static void first_frame_cb(MyApplication* self, FlView* view) {
   (void)self;
   (void)view;
@@ -47,11 +47,11 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "baton");
+    gtk_header_bar_set_title(header_bar, "Baton Mi");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "baton");
+    gtk_window_set_title(window, "Baton Mi");
   }
 
   gtk_window_set_default_size(window, 1280, 720);

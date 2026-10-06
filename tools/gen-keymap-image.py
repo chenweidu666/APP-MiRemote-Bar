@@ -78,7 +78,7 @@ def build_svg(bindings: dict) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
         f'<rect width="{W}" height="{H}" fill="#f7f8f7"/>',
         f'<text x="46" y="66" font-family="{FONT}" font-size="34" font-weight="600" fill="#1b1f23">'
-        f'Baton · 键位映射</text>',
+        f'Baton Mi · 键位映射</text>',
         f'<text x="46" y="98" font-family="{FONT}" font-size="17" fill="#5c6672">'
         f'小米蓝牙遥控器 2 Pro（RC003 · BLE VID:PID 2717:32b8）→ Linux 桌面 · 由 mapping.json 自动生成</text>',
     ]

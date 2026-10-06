@@ -120,7 +120,7 @@ else
 fi
 
 echo
-echo "== 7/7 托盘应用（Baton）=="
+echo "== 7/7 托盘应用（Baton Mi）=="
 FLUTTER="$(command -v flutter || echo "$HOME/flutter/bin/flutter")"
 if [ -x "$FLUTTER" ]; then
   ( cd "$ROOT/app" && PATH="$(dirname "$FLUTTER"):$PATH" flutter build linux --release >/dev/null 2>&1 ) \
@@ -137,7 +137,7 @@ if [ -x "$FLUTTER" ]; then
   # 桌面条目：开机自启 + 应用列表里可手动启动
   sed "s|/home/chenwei|$HOME|g" "$ROOT/system/baton.desktop" > "$HOME/.config/autostart/baton.desktop"
   sed "s|/home/chenwei|$HOME|g" "$ROOT/system/baton.desktop" > "$APPS/baton.desktop"
-  echo "   图标与桌面条目已安装（应用列表搜 Baton）"
+  echo "   图标与桌面条目已安装（应用列表搜 Baton Mi）"
   pkill -x baton 2>/dev/null || true
   sleep 1
   nohup "$BIN/baton" >/tmp/baton.log 2>&1 &

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Baton
-Name[zh_CN]=Baton 遥控器托盘
+Name=Baton Mi
+Name[zh_CN]=Baton Mi
 Comment=小米蓝牙语音遥控器状态：蓝牙链路 / 按键节点 / 服务
 Comment[en]=Xiaomi BLE remote status: Bluetooth, HID node, service
 Exec=/home/chenwei/.local/bin/baton

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 构建并（重）启动 Baton 托盘应用
+# 构建并（重）启动 Baton Mi 托盘应用
 #
 # 用法: ./run.sh [--no-build]
 set -euo pipefail

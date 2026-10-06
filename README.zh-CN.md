@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton"></p>
+<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton Mi"></p>
 
-# Baton · 小米蓝牙语音遥控器 → Linux 桌面遥控器
+# Baton Mi · 小米蓝牙语音遥控器 → Linux 桌面遥控器
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%2F%20GNOME%20Wayland-blue)
@@ -9,7 +9,7 @@
 
 [English](README.md) · **中文说明**
 
-**躺在沙发上 vibe coding。** Baton 把一只便宜的小米蓝牙语音遥控器变成 AI 编程 agent 的免手控制器：
+**躺在沙发上 vibe coding。** Baton Mi 把一只便宜的小米蓝牙语音遥控器变成 AI 编程 agent 的免手控制器：
 **按住说话**（本地离线识别）、**一按打断**模型、**不碰键盘**就能在 agent / 编辑器 / 浏览器之间切窗口。
 
 > 专为 **GNOME / Wayland** 而写 —— 在它上面，常见的按键注入工具（`wtype`、`xdotool`）根本不可用，

@@ -1,5 +1,5 @@
 [Unit]
-Description=Baton uinput injection daemon (ydotoold replacement)
+Description=Baton Mi uinput injection daemon (ydotoold replacement)
 PartOf=graphical-session.target
 After=graphical-session.target
 

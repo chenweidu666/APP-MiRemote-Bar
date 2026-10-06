@@ -1,0 +1,19 @@
+#!/bin/bash
+# 探测云端 ASR 是否活着（不打印 Key）
+set -euo pipefail
+PY="${MI_REMOTE_PYTHON:-$HOME/.local/share/mi-remote-linux/versions/0.4.1/bin/python3}"
+if [ -z "${MIMO_ASR_CONFIG:-}" ] && [ -f "$HOME/.config/systemd/user/mi-remote.service" ]; then
+  MIMO_ASR_CONFIG="$(sed -n 's/.*Environment="MIMO_ASR_CONFIG=\([^"]*\)".*/\1/p' "$HOME/.config/systemd/user/mi-remote.service" | head -1)"
+  export MIMO_ASR_CONFIG
+fi
+NOTIFY=0
+for arg in "$@"; do
+  case "$arg" in
+    --notify) NOTIFY=1 ;;
+  esac
+done
+if [ "$NOTIFY" = 1 ]; then
+  exec "$PY" -c 'from mi_remote_linux.mimo_asr import probe_health; raise SystemExit(0 if probe_health(notify=True) else 1)'
+else
+  exec "$PY" -c 'from mi_remote_linux.mimo_asr import probe_health; raise SystemExit(0 if probe_health() else 1)'
+fi

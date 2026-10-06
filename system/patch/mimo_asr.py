@@ -9,6 +9,8 @@ import io
 import json
 import logging
 import os
+import subprocess
+import time
 import urllib.error
 import urllib.request
 import wave
@@ -21,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 CONFIG_ENV = "MIMO_ASR_CONFIG"
 _REPO_DEFAULT = Path(__file__).resolve().parents[1] / "cloud-asr.json"
+_last_down_notify = 0.0
+NOTIFY_COOLDOWN_SECONDS = 60.0
 
 
 def config_path() -> Path:
@@ -113,6 +117,7 @@ def transcribe_pcm(
     cfg = load_asr_config()
     key = load_api_key(cfg)
     if not key:
+        notify_asr_down("缺少 api_key")
         raise RuntimeError("未配置 api_key（写在 cloud-asr.json 里，该文件不进 git）")
 
     import base64
@@ -165,17 +170,98 @@ def transcribe_pcm(
         with urllib.request.urlopen(request, timeout=wait) as response:
             raw = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")[:300]
-        raise RuntimeError(f"云端 ASR HTTP {exc.code}: {detail}") from exc
+        detail = exc.read().decode("utf-8", errors="replace")[:200]
+        reason = f"HTTP {exc.code}"
+        notify_asr_down(reason)
+        raise RuntimeError(f"云端 ASR {reason}: {detail}") from exc
+    except urllib.error.URLError as exc:
+        reason = "网络超时或连不上"
+        notify_asr_down(reason)
+        raise RuntimeError(f"云端 ASR {reason}: {exc}") from exc
 
     data = json.loads(raw)
     if data.get("error"):
+        reason = "接口返回错误"
+        notify_asr_down(reason)
         raise RuntimeError(str(data["error"]))
     choices = data.get("choices") or []
     if not choices:
+        notify_asr_down("无识别结果")
         raise RuntimeError("云端 ASR 无 choices")
     text = str((choices[0].get("message") or {}).get("content") or "").strip()
     if not text:
+        notify_asr_down("空文本")
         raise RuntimeError("云端 ASR 空文本")
     logger.info("云端 ASR 转写结果: %s", text)
     return text
+
+
+def notify_asr_down(reason: str) -> None:
+    """桌面通知：云端挂了。60 秒内最多一条，避免刷屏。"""
+    global _last_down_notify
+    now = time.monotonic()
+    if now - _last_down_notify < NOTIFY_COOLDOWN_SECONDS:
+        return
+    _last_down_notify = now
+    logger.error("云端 ASR 不可用: %s", reason)
+    try:
+        subprocess.run(
+            [
+                "notify-send",
+                "-a",
+                "Baton",
+                "-u",
+                "critical",
+                "-t",
+                "8000",
+                "小米语音识别挂了",
+                reason[:160],
+            ],
+            check=False,
+            timeout=3,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        pass
+
+
+def probe_health(*, notify: bool = False) -> bool:
+    """探测 GET {base_url}/models，确认配置的 model 在列表里。不打印 Key。"""
+    try:
+        cfg = load_asr_config()
+        key = load_api_key(cfg)
+        base = str(cfg.get("base_url") or "").rstrip("/")
+        model = str(cfg.get("model") or "").strip()
+        if not key or not base:
+            if notify:
+                notify_asr_down("缺少 api_key 或 base_url")
+            print("FAIL: 配置不完整", flush=True)
+            return False
+        request = urllib.request.Request(
+            f"{base}/models",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "api-key": key,
+                "Accept": "application/json",
+            },
+        )
+        with urllib.request.urlopen(request, timeout=15) as response:
+            body = response.read().decode("utf-8")
+            status = response.status
+        data = json.loads(body)
+        ids = [item.get("id") for item in data.get("data") or []]
+        ok = status == 200 and (not model or model in ids)
+        print(
+            f"{'OK' if ok else 'FAIL'} HTTP {status} provider={cfg.get('provider')} "
+            f"model={model} listed={model in ids}",
+            flush=True,
+        )
+        if not ok and notify:
+            notify_asr_down(f"探测失败 HTTP {status}")
+        return ok
+    except Exception as exc:  # noqa: BLE001
+        print(f"FAIL: {exc}", flush=True)
+        if notify:
+            notify_asr_down("探测失败（连不上）")
+        return False

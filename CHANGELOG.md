@@ -50,6 +50,7 @@
 - 启动层（短按 TV 进层启动 5 个目标）；备份见 `system/mapping.json.with-launch-layer.bak`
 - 鼠标模式（电源键改为 Esc/关窗后无入口；实现仍在，可用 `power.hold = {"type":"mouse_mode"}` 恢复）
 - 长按返回"连续快删"（实现留档于 `extras/backspace-burst` 与 `system/patch/`）
+- 本分支不再附带本地 Paraformer（`models/paraformer-zh/`）；语音只走小米云端
 
 ### 修复（Fixed）
 

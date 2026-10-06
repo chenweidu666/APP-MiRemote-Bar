@@ -134,7 +134,6 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 ## Repository layout
 
 ```
-├── models/      local Paraformer weights (onnx not in git; see models/README.md)
 ├── app/         tray app (Flutter, tray-only, no window)
 ├── tools/       maintenance tools (keymap image, logo) — not installed
 ├── scripts/     small tools called by mi-remote → installed into ~/.local/bin
@@ -151,7 +150,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 - Only this one remote is supported (VID:PID `2717:32b8`); its HID device name changes
   (`小米蓝牙语音遥控器` ↔ `MI RC`), which the udev rule accounts for
 - A BLE remote connects to **one host at a time**: after using it with your TV, press *Menu + Home* to re-pair
-- Speech recognition defaults to **Xiaomi MiMo cloud ASR** (`mimo-v2.5-asr`); local Paraformer stays in the tree but is not loaded
+- Speech recognition uses **Xiaomi MiMo cloud ASR**; this branch does not ship a local Paraformer
 - Window focus/switching depends on the GNOME extension **`winrects@cua`**; without it, launchers merely fall
   back to "always open a new window" (nothing else breaks)
 - The tray app must never set `skipTaskbar` on Wayland (it segfaults in `libwayland-client`), so it uses a
@@ -181,7 +180,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 - [goodtiger/mi-remote-linux](https://github.com/goodtiger/mi-remote-linux) — the foundation this project builds on
   (GATT/ATVV handling, key decoding, action engine, voice pipeline; MIT). This repo also **ships two upstream
   artifacts**: the official installer and an original/patched copy of `mapping_engine.py`.
-- [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx) (Apache-2.0) + the `csukuangfj/sherpa-onnx-paraformer-zh-2023-09-14` model
+- [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx) (Apache-2.0) — still bundled by upstream mi-remote; this branch does not load it
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper), [python-evdev](https://github.com/gvalkov/python-evdev),
   [NumPy](https://numpy.org) — ASR fallback, input handling, audio buffers
 - [Flutter](https://flutter.dev) + [tray_manager](https://pub.dev/packages/tray_manager) + GNOME AppIndicator — the tray app

@@ -49,20 +49,6 @@ if [ -f "$CFG/mapping.json" ]; then
 fi
 install -m 644 "$ROOT/system/mapping.json" "$CFG/mapping.json"
 
-echo "== 语音模型 → $ROOT/models/paraformer-zh =="
-MODEL_DIR="$ROOT/models/paraformer-zh"
-mkdir -p "$MODEL_DIR"
-if [ ! -f "$MODEL_DIR/model.int8.onnx" ]; then
-  if command -v mi-remote >/dev/null; then
-    mi-remote model download --target "$MODEL_DIR"
-  else
-    echo "   ⚠️ 未找到 mi-remote，跳过下载（稍后：mi-remote model download --target $MODEL_DIR）"
-  fi
-fi
-if [ -f "$MODEL_DIR/model.int8.onnx" ]; then
-  echo "   已就绪 $(du -h "$MODEL_DIR/model.int8.onnx" | awk '{print $1}')"
-fi
-
 echo "== 3/6 应用 mi-remote 云端 ASR 补丁 =="
 if [ ! -f "$ROOT/system/cloud-asr.json" ] && [ -f "$ROOT/system/cloud-asr.json.example" ]; then
   cp "$ROOT/system/cloud-asr.json.example" "$ROOT/system/cloud-asr.json"

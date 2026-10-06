@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/images/logo.png" width="110" alt="MiRemote Bar"></p>
+<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton"></p>
 
-# MiRemote Bar · 小米蓝牙语音遥控器 → Linux 桌面遥控器
+# Baton · 小米蓝牙语音遥控器 → Linux 桌面遥控器
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%2F%20GNOME%20Wayland-blue)
@@ -38,8 +38,8 @@
 - Flutter（仅托盘应用需要，3.2x+）
 
 ```bash
-git clone https://github.com/chenweidu666/APP-MiRemote-Bar.git
-cd APP-MiRemote-Bar
+git clone https://github.com/chenweidu666/Baton.git
+cd Baton
 ./install.sh          # 部署脚本 / udev 规则 / systemd 服务 / 托盘应用 + 开机自启
 mi-remote doctor      # 自检（应为 12 通过 / 1 警告 / 0 失败）
 ```
@@ -141,7 +141,7 @@ GNOME（Mutter）**不实现** `wtype` 依赖的虚拟键盘协议，`xdotool` �
 
 - `/home/chenwei/...` → 你自己的家目录（`install.sh` 会自动替换 `$HOME`）
 - `F0:2B:18:87:37:B7` → 你的遥控器 MAC（`bluetoothctl devices` 查看）
-- `~/Workspace`、`~/Linux-App/05-MiRemote-Bar` → 示例目录（启动器目标写死在 `system/mapping.json` 里）
+- `~/Workspace`、`~/Linux-App/05-Baton` → 示例目录（启动器目标写死在 `system/mapping.json` 里）
 
 ## 致谢
 

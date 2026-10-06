@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/images/logo.png" width="110" alt="MiRemote Bar"></p>
+<p align="center"><img src="docs/images/logo.png" width="110" alt="Baton"></p>
 
-# MiRemote Bar · Xiaomi BLE Voice Remote → Linux Desktop
+# Baton · Xiaomi BLE Voice Remote → Linux Desktop
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%2F%20GNOME%20Wayland-blue)
@@ -48,8 +48,8 @@ Requirements:
 - Flutter 3.2x+ (only for the tray app)
 
 ```bash
-git clone https://github.com/chenweidu666/APP-MiRemote-Bar.git
-cd APP-MiRemote-Bar
+git clone https://github.com/chenweidu666/Baton.git
+cd Baton
 ./install.sh          # deploy scripts / udev rule / systemd units / tray app + autostart
 mi-remote doctor      # self-check (expect: 12 pass / 1 warning / 0 fail)
 ```
@@ -154,7 +154,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 
 - `/home/chenwei/...` → your home directory (`install.sh` substitutes `$HOME` automatically)
 - `F0:2B:18:87:37:B7` → your remote's MAC (`bluetoothctl devices`)
-- `~/Workspace`, `~/Linux-App/05-MiRemote-Bar` → example folders (launcher targets are hard-coded in `system/mapping.json`)
+- `~/Workspace`, `~/Linux-App/05-Baton` → example folders (launcher targets are hard-coded in `system/mapping.json`)
 
 ## Credits
 

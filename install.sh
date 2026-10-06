@@ -98,32 +98,32 @@ else
 fi
 
 echo
-echo "== 7/7 托盘应用（MiRemote Bar）=="
+echo "== 7/7 托盘应用（Baton）=="
 FLUTTER="$(command -v flutter || echo "$HOME/flutter/bin/flutter")"
 if [ -x "$FLUTTER" ]; then
   ( cd "$ROOT/app" && PATH="$(dirname "$FLUTTER"):$PATH" flutter build linux --release >/dev/null 2>&1 ) \
     && echo "   已构建 release" || echo "   ⚠️ 构建失败（可稍后在 app/ 里手动 ./run.sh）"
-  APP_DEST="$HOME/.local/share/miremote-bar"
+  APP_DEST="$HOME/.local/share/baton"
   rm -rf "$APP_DEST"; mkdir -p "$APP_DEST"
   cp -r "$ROOT/app/build/linux/x64/release/bundle/." "$APP_DEST/" 2>/dev/null || true
-  install -m 755 "$ROOT/scripts/miremote-bar" "$BIN/miremote-bar"
-  # 图标：装进用户图标主题（桌面条目用 Icon=miremote-bar 引用）
+  install -m 755 "$ROOT/scripts/baton" "$BIN/baton"
+  # 图标：装进用户图标主题（桌面条目用 Icon=baton 引用）
   ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
   mkdir -p "$ICON_DIR" "$APPS" "$HOME/.config/autostart"
-  install -m 644 "$ROOT/docs/images/logo.png" "$ICON_DIR/miremote-bar.png"
+  install -m 644 "$ROOT/docs/images/logo.png" "$ICON_DIR/baton.png"
   command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" >/dev/null 2>&1 || true
   # 桌面条目：开机自启 + 应用列表里可手动启动
-  sed "s|/home/chenwei|$HOME|g" "$ROOT/system/miremote-bar.desktop" > "$HOME/.config/autostart/miremote-bar.desktop"
-  sed "s|/home/chenwei|$HOME|g" "$ROOT/system/miremote-bar.desktop" > "$APPS/miremote-bar.desktop"
-  echo "   图标与桌面条目已安装（应用列表搜 MiRemote Bar）"
-  pkill -x miremote_bar 2>/dev/null || true
+  sed "s|/home/chenwei|$HOME|g" "$ROOT/system/baton.desktop" > "$HOME/.config/autostart/baton.desktop"
+  sed "s|/home/chenwei|$HOME|g" "$ROOT/system/baton.desktop" > "$APPS/baton.desktop"
+  echo "   图标与桌面条目已安装（应用列表搜 Baton）"
+  pkill -x baton 2>/dev/null || true
   sleep 1
-  nohup "$BIN/miremote-bar" >/tmp/miremote-bar.log 2>&1 &
+  nohup "$BIN/baton" >/tmp/baton.log 2>&1 &
   sleep 4
-  if pgrep -x miremote_bar >/dev/null; then
+  if pgrep -x baton >/dev/null; then
     echo "   已安装并启动（顶栏可见状态圆点）· 开机自启已写入 ~/.config/autostart/"
   else
-    echo "   ⚠️ 启动失败，见 /tmp/miremote-bar.log"
+    echo "   ⚠️ 启动失败，见 /tmp/baton.log"
   fi
 else
   echo "   跳过：未找到 flutter（只装了脚本部分）"

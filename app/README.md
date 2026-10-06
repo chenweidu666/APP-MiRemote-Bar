@@ -1,4 +1,4 @@
-# miremote_bar
+# baton
 
 A new Flutter project.
 

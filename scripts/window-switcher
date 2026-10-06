@@ -44,7 +44,7 @@ touch "$LOCK"
 printf '%s  switcher open  hold=%ss\n' "$(date '+%F %T')" "$HOLD" >>"$LOG"
 "$Y" key 56:1 15:1 15:0
 if command -v notify-send >/dev/null; then
-  notify-send -t 3000 "MiRemote · 窗口切换器" \
+  notify-send -t 3000 "Baton · 窗口切换器" \
     "用 ← / → 选择窗口；停止操作 ${HOLD} 秒后自动选定（再长按菜单 = 下一个）" || true
 fi
 sleep 0.3                # 等切换器拿到键盘，避免头几个方向键落到窗口里

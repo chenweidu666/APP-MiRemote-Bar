@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="900" viewBox="0 0 1560 900">
 <rect width="1560" height="900" fill="#f7f8f7"/>
-<text x="46" y="66" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="34" font-weight="600" fill="#1b1f23">MiRemote Bar · 键位映射</text>
+<text x="46" y="66" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="34" font-weight="600" fill="#1b1f23">Baton · 键位映射</text>
 <text x="46" y="98" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#5c6672">小米蓝牙遥控器 2 Pro（RC003 · BLE VID:PID 2717:32b8）→ Linux 桌面 · 由 mapping.json 自动生成</text>
 <rect x="96" y="140" width="230" height="660" rx="30" fill="#e9ebee" stroke="#c9ced6" stroke-width="2"/>
 <circle cx="176" cy="210" r="30" fill="#272b31"/>

@@ -203,7 +203,7 @@ def cmd_refine(args) -> int:
 
 def cmd_all(args) -> int:
     prompt = args.prompt or PRESETS[args.preset]
-    tmp = pathlib.Path(tempfile.mkdtemp(prefix="miremote-logo-"))
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="baton-logo-"))
     raw = tmp / "raw.png"
     generate(prompt, api_key(args), raw, args.model)
     refine(raw, pathlib.Path(args.out), args.mode)
@@ -217,12 +217,12 @@ def cmd_install(args) -> int:
         sys.exit(f"  ⚠️ 找不到 {src}")
     dst_dir = pathlib.Path.home() / ".local/share/icons/hicolor/512x512/apps"
     dst_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["install", "-m", "644", str(src), str(dst_dir / "miremote-bar.png")], check=True)
+    subprocess.run(["install", "-m", "644", str(src), str(dst_dir / "baton.png")], check=True)
     if subprocess.run(["which", "gtk-update-icon-cache"], capture_output=True).returncode == 0:
         subprocess.run(["gtk-update-icon-cache", "-f", "-t",
                         str(pathlib.Path.home() / ".local/share/icons/hicolor")],
                        capture_output=True)
-    print(f"  ✅ 已安装到 {dst_dir / 'miremote-bar.png'}（桌面条目用 Icon=miremote-bar 引用）")
+    print(f"  ✅ 已安装到 {dst_dir / 'baton.png'}（桌面条目用 Icon=baton 引用）")
     return 0
 
 

@@ -1,0 +1,3 @@
+#!/bin/bash
+# 启动 Baton 托盘应用（bundle 由 install.sh 装到 ~/.local/share/baton）
+exec "$HOME/.local/share/baton/baton" "$@"

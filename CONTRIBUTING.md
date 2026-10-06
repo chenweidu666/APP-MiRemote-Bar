@@ -1,6 +1,6 @@
 # 贡献指南（Contributing）
 
-感谢愿意帮忙改进 MiRemote Bar！这是一个**面向单款遥控器**（小米蓝牙语音遥控器，VID:PID `2717:32b8`）的小项目，
+感谢愿意帮忙改进 Baton！这是一个**面向单款遥控器**（小米蓝牙语音遥控器，VID:PID `2717:32b8`）的小项目，
 所以改动通常集中在"键位映射 / 启动器 / 托盘状态判断 / 文档"这几块。
 
 ## 提 Issue 前先看一眼
@@ -17,8 +17,8 @@
 ## 开发
 
 ```bash
-git clone https://github.com/chenweidu666/APP-MiRemote-Bar.git
-cd APP-MiRemote-Bar
+git clone https://github.com/chenweidu666/Baton.git
+cd Baton
 ./install.sh              # 幂等；已就绪的部分会自动跳过
 cd app && ./run.sh        # 开发托盘应用（构建 + 重启）
 ```

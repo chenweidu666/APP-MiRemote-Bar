@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MiRemote uinput 注入守护进程（ydotoold 的替代实现）。
+"""Baton uinput 注入守护进程（ydotoold 的替代实现）。
 
 背景：GNOME (Mutter) 不实现 wtype 依赖的 zwp_virtual_keyboard 协议，
 xdotool 在 Wayland 下也不可用，因此按键注入只能走内核 uinput。
@@ -40,7 +40,7 @@ def create_device() -> UInput:
         e.EV_KEY: list(range(1, 0x300)),
         e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL, e.REL_HWHEEL],
     }
-    return UInput(capabilities, name="MiRemote Virtual Input", version=1)
+    return UInput(capabilities, name="Baton Virtual Input", version=1)
 
 
 def handle(ui: UInput, message: dict) -> None:

@@ -120,7 +120,7 @@
           "type": "command",
           "argv": [
             "/home/chenwei/.local/bin/open-workspace-opencode",
-            "/home/chenwei/Linux-App/05-MiRemote-Bar"
+            "/home/chenwei/Linux-App/05-Baton"
           ]
         }
       }

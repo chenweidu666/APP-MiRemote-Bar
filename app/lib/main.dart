@@ -1,4 +1,4 @@
-// MiRemote Bar —— 小米蓝牙语音遥控器状态托盘（纯托盘，无窗口）
+// Baton —— 小米蓝牙语音遥控器状态托盘（纯托盘，无窗口）
 //
 // 托盘图标：绿=全部正常 / 黄=按键可用但语音未连 / 红=服务或按键异常
 // 点图标 → 小菜单：状态三层 + 键位速查（子菜单，直接读 mapping.json）+ 常用操作
@@ -20,7 +20,7 @@ final String kHome = Platform.environment['HOME'] ?? '/home/chenwei';
 final String kRuntimeDir =
     Platform.environment['XDG_RUNTIME_DIR'] ?? '/run/user/1000';
 final String kRepoPath =
-    Platform.environment['MIRemote_REPO'] ?? '$kHome/Linux-App/05-MiRemote-Bar';
+    Platform.environment['BATON_REPO'] ?? '$kHome/Linux-App/05-Baton';
 final String kConfigPath = '$kHome/.config/mi-remote-linux/mapping.json';
 
 Future<void> main() async {
@@ -97,13 +97,13 @@ Future<(bool, String?)> _hidNode() async {
 Future<void> _notify(String title, String body, {bool urgent = false}) async {
   final icon = File('$kRepoPath/app/assets/tray_off.png');
   final args = <String>[
-    '-a', 'MiRemote Bar',
+    '-a', 'Baton',
     if (icon.existsSync()) ...['-i', icon.path],
     if (urgent) ...['-u', 'critical'],
     title,
     body,
   ];
-  stderr.writeln('[notify] $title — $body'); // 落到 /tmp/miremote-bar.log，便于验证
+  stderr.writeln('[notify] $title — $body'); // 落到 /tmp/baton.log，便于验证
   await _run('notify-send', args);
 }
 
@@ -291,7 +291,7 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
   }
 
   Future<void> _initTray() async {
-    await _safe(() => trayManager.setToolTip('MiRemote Bar'));
+    await _safe(() => trayManager.setToolTip('Baton'));
     await _refresh();
   }
 
@@ -325,7 +325,7 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
     final s = await _probe();
     await _notifyTransitions(s);
     await _safe(() => trayManager.setIcon(s.iconAsset));
-    await _safe(() => trayManager.setToolTip('MiRemote · ${s.headline}'));
+    await _safe(() => trayManager.setToolTip('Baton · ${s.headline}'));
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'status', label: '状态：${s.headline}', disabled: true),
       MenuItem.separator(),
@@ -395,7 +395,7 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
         break;
       case 'log':
         await Process.start('gnome-terminal', [
-          '--title=MiRemote 日志',
+          '--title=Baton 日志',
           '--',
           'bash',
           '-lc',

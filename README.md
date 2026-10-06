@@ -45,7 +45,8 @@ room, not just from your desk.
 ## Features
 
 - 🎙️ **Push-to-talk**: hold the mic key, speak, release — the transcription is pasted into the focused window.
-  **Recommended ASR: Xiaomi MiMo** (`mimo-v2.5-asr`); put the key in local `system/cloud-asr.json`
+  **Recommended ASR: Xiaomi MiMo** (`mimo-v2.5-asr`). The TV-remote mic is far-field; the cloud model is built for that, lands in about 0.7–0.9 s, and avoids hundreds of MB of local ONNX RAM.
+  List price is **¥0.5 / audio hour** (~$0.074); Token Plan bills **30M Credits per audio hour**. A 5-second utterance is about **¥0.0007**. Put the key in local `system/cloud-asr.json`. Longer rationale: [`docs/指南.md` §1.3.1](docs/指南.md)
 - ⏹️ **Instant interrupt**: `Esc` on the Power key with no double-tap delay — safe to press repeatedly
 - 🚀 **One-press launch**: double-press *Home* → OpenCode, double-press *TV* → Cursor; if the target folder is
   already open, the existing window is **raised instead of duplicated**
@@ -84,7 +85,7 @@ mi-remote doctor      # self-check (expect: 12 pass / 1 warning / 0 fail)
 | Button | Tap | Hold (≥350 ms) | Double-tap |
 |---|---|---|---|
 | Voice | hold to talk → release to paste | — | — |
-| OK | `Enter` | — | — |
+| OK | `Enter` | **`Ctrl+Enter`** (send in OpenCode web) | — |
 | Arrows | arrow keys | — | — |
 | Back | **delete one char** (instant; tap repeatedly to delete fast) | — | — |
 | Home | — | — | launch **OpenCode** |
@@ -150,7 +151,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 - Only this one remote is supported (VID:PID `2717:32b8`); its HID device name changes
   (`小米蓝牙语音遥控器` ↔ `MI RC`), which the udev rule accounts for
 - A BLE remote connects to **one host at a time**: after using it with your TV, press *Menu + Home* to re-pair
-- Speech recognition is **recommended to use Xiaomi MiMo** (`mimo-v2.5-asr`); this branch does not ship a local model
+- Speech recognition is **recommended to use Xiaomi MiMo** (`mimo-v2.5-asr`, ~¥0.5 / audio hour); this branch does not ship a local model
 - Window focus/switching depends on the GNOME extension **`winrects@cua`**; without it, launchers merely fall
   back to "always open a new window" (nothing else breaks)
 - The tray app must never set `skipTaskbar` on Wayland (it segfaults in `libwayland-client`), so it uses a

@@ -7,7 +7,8 @@
 
 ### 新增（Added）
 
-- **小米 MiMo 云端 ASR**：`system/cloud-asr.json` 同时放地址、模型和 api_key（gitignore）；挂掉时桌面通知，可用 `cloud-asr-health` 探测
+- **长按 OK = `Ctrl+Enter`**：给 OpenCode 网页版发送消息；短按仍是 `Enter`
+- **小米 MiMo 云端 ASR**：`system/cloud-asr.json` 同时放地址、模型和 api_key（gitignore）；挂掉时桌面通知，可用 `cloud-asr-health` 探测。文档写明建议理由（远场识别率、内存与时延、官方单价 ¥0.5/音频小时 与 Token Plan 30M Credits/小时）
 - **仓库结构**：新增 `tools/`（维护工具：键位图生成、logo 生成），运行时脚本仍留在 `scripts/`（会被装进 `~/.local/bin`）
 - **项目 logo**：圆形徽章（遥控器 + 信号弧），`docs/images/logo.png`，同时用作桌面图标；托盘栏仍是绿/黄/红三色状态圆点
 - **开源化包装**：双语 README（`README.md` 英文 / `README.zh-CN.md` 中文）、`LICENSE`(MIT)、`CHANGELOG.md`、

@@ -141,6 +141,13 @@
         "type": "key_stroke",
         "key": "return"
       },
+      "hold": {
+        "type": "key_stroke",
+        "key": "return",
+        "mods": [
+          "ctrl"
+        ]
+      },
       "layers": {
         "2": {
           "type": "key_stroke",

@@ -65,7 +65,7 @@
 <line x1="452" y1="477" x2="1352" y2="477" stroke="#f0f2f4"/>
 <text x="452" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">OK</text>
 <text x="584" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#2f6f4f">Enter</text>
-<text x="922" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">—</text>
+<text x="922" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8a6d1f">Ctrl+Enter</text>
 <text x="1194" y="508" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="17" fill="#8c4a4a">—</text>
 <line x1="452" y1="523" x2="1352" y2="523" stroke="#f0f2f4"/>
 <text x="452" y="554" font-family="'Noto Sans CJK SC','WenQuanYi Micro Hei','Source Han Sans SC',sans-serif" font-size="18" font-weight="600" fill="#1b1f23">返回</text>

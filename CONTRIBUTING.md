@@ -35,7 +35,7 @@ cd app && ./run.sh        # 开发托盘应用（构建 + 重启）
    cd app && flutter analyze                          # 托盘应用
    bash tests/test_double.py 2>/dev/null || true      # 行为仿真（需 mi-remote 的 venv python）
    ```
-2. **同步文档**：改了键位就更新 `docs/指南.md` 第一部分（键位表）与开头的键位图（`python3 tools/gen-keymap-image.py`），两份 README 里的表格也要跟着改（本项目的硬性要求）
+2. **同步文档**：改了键位就更新 `docs/指南.md` 第 1 章（使用与键位）与开头的键位图（`python3 scripts/gen-keymap-image.py`），两份 README 里的表格也要跟着改（本项目的硬性要求）
 3. **双语 README**：改动涉及 README 时，请同步 `README.md`（英文）与 `README.zh-CN.md`（中文）
 3. **提交信息**：一律用**英文**，遵循 Conventional Commits（见下方「提交信息规范」）
 4. 开 PR 时说明：**现象 / 原因 / 怎么验证的**（最好附上仿真或真机证据）

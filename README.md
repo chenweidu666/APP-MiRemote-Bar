@@ -10,7 +10,7 @@
 **English** · [中文说明](README.zh-CN.md)
 
 **Vibe-code from the couch.** Baton Mi turns a cheap Xiaomi Bluetooth voice remote into a hands-free controller
-for your AI coding agent on Linux: **hold to talk** (offline speech-to-text), **tap to interrupt** the model,
+for your AI coding agent on Linux: **hold to talk** (recommended: Xiaomi **MiMo** ASR), **tap to interrupt** the model,
 and **switch windows** between the agent, the editor and the browser — without touching the keyboard.
 
 Built for **GNOME / Wayland**, where the usual key-injection tools (`wtype`, `xdotool`) simply do not work —
@@ -21,7 +21,7 @@ the naive "create a virtual device every time" approach).
 
 ```
 Remote buttons ──BLE HID──► mi-remote (action engine) ──► uinput shim ──► desktop
-Remote mic     ──BLE ATVV─► IMA ADPCM decode ──► local Paraformer ASR ──► clipboard ──► Ctrl+Shift+V
+Remote mic     ──BLE ATVV─► IMA ADPCM decode ──► Xiaomi MiMo ASR ──► clipboard ──► Ctrl+Shift+V
 ```
 
 ## The AI-agent loop, on one remote
@@ -30,7 +30,7 @@ The moves you repeat all day while an agent writes your code — and the button 
 
 | What you want | Press | What happens |
 |---|---|---|
-| Dictate the next prompt | **hold Voice** | push-to-talk → local ASR (~150 ms) → pasted into the focused window. No IME switching, no cloud |
+| Dictate the next prompt | **hold Voice** | push-to-talk → **Xiaomi MiMo** (`mimo-v2.5-asr`) → pasted into the focused window. No IME switching |
 | Stop the model mid-answer | **tap Power** | `Esc`, instantly: the double-tap test is gone, so pressing it again never misfires |
 | Unblock a stuck agent | **tap TV** | `Ctrl+B` (OpenCode: push the blocking tool to the background) |
 | Jump between agent / editor / browser | **hold Menu**, then `←`/`→` | a real switcher over **all** windows (`Alt+Tab` only toggles the last two) |
@@ -44,8 +44,8 @@ room, not just from your desk.
 
 ## Features
 
-- 🎙️ **Push-to-talk**: hold the mic key, speak, release — the transcription is pasted into the focused window
-  (fully local ASR, ~150 ms, no network, no account)
+- 🎙️ **Push-to-talk**: hold the mic key, speak, release — the transcription is pasted into the focused window.
+  **Recommended ASR: Xiaomi MiMo** (`mimo-v2.5-asr`); put the key in local `system/cloud-asr.json`
 - ⏹️ **Instant interrupt**: `Esc` on the Power key with no double-tap delay — safe to press repeatedly
 - 🚀 **One-press launch**: double-press *Home* → OpenCode, double-press *TV* → Cursor; if the target folder is
   already open, the existing window is **raised instead of duplicated**
@@ -150,7 +150,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 - Only this one remote is supported (VID:PID `2717:32b8`); its HID device name changes
   (`小米蓝牙语音遥控器` ↔ `MI RC`), which the udev rule accounts for
 - A BLE remote connects to **one host at a time**: after using it with your TV, press *Menu + Home* to re-pair
-- Speech recognition uses **Xiaomi MiMo cloud ASR**; this branch does not ship a local Paraformer
+- Speech recognition is **recommended to use Xiaomi MiMo** (`mimo-v2.5-asr`); this branch does not ship a local model
 - Window focus/switching depends on the GNOME extension **`winrects@cua`**; without it, launchers merely fall
   back to "always open a new window" (nothing else breaks)
 - The tray app must never set `skipTaskbar` on Wayland (it segfaults in `libwayland-client`), so it uses a

@@ -3,7 +3,7 @@
 本项目**依赖、调用或打包**了下列开源项目。感谢这些作者的工作 🙏
 
 > 说明：除标注「随仓库分发」的项外，其余均为**运行环境中的依赖**（系统包或上游项目）。
-> 本分支语音识别走小米云端，不分发 Paraformer 权重。
+> 本分支**建议用小米 MiMo**（`mimo-v2.5-asr`）做语音识别，不分发本地语音权重。
 > 许可证以各上游仓库为准。
 
 ## 核心依赖（本项目的底座）
@@ -19,7 +19,7 @@
 | 项目 | 用途 | 许可证 | 链接 |
 |---|---|---|---|
 | **Sherpa-ONNX**（k2-fsa） | 上游 mi-remote 仍打包的离线引擎（本分支不加载） | Apache-2.0 | <https://github.com/k2-fsa/sherpa-onnx> |
-| **Xiaomi MiMo ASR**（`mimo-v2.5-asr`） | 默认云端转写（Token Plan，Key 不进仓库） | 专有云服务 | <https://mimo.mi.com/docs/en-US/usage-guide/Speech-Recognition> |
+| **Xiaomi MiMo ASR**（`mimo-v2.5-asr`） | **建议使用**的云端转写（Token Plan，Key 不进仓库） | 专有云服务 | <https://mimo.mi.com/docs/en-US/usage-guide/Speech-Recognition> |
 | **faster-whisper**（SYSTRAN） | 备用离线识别引擎 | MIT | <https://github.com/SYSTRAN/faster-whisper> |
 | **python-evdev** | 读取遥控器按键事件 / 本项目的 uinput 注入垫片 | BSD-3-Clause | <https://github.com/gvalkov/python-evdev> |
 | **NumPy** | 音频数组处理（经 mi-remote 引入） | BSD-3-Clause | <https://numpy.org> |

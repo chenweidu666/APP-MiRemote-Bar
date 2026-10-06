@@ -8,9 +8,12 @@ PartOf=graphical-session.target
 Type=simple
 # GNOME Wayland 下按键注入必须走 ydotool→uinput；把 ~/.local/bin 前置以便找到垫片
 Environment="PATH=/home/chenwei/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="MIMO_ASR_CONFIG=@BATON_ROOT@/system/cloud-asr.json"
 # 终端里粘贴是 Ctrl+Shift+V（Wayland 下无法自动识别终端，故显式指定）
 # 默认 --gain 6 会把遥控麦削波（峰值顶满 32768），识别成乱码；本机实测关增益更准
-ExecStart="/home/chenwei/.local/share/mi-remote-linux/versions/0.4.1/bin/mi-remote" "voice" "--engine" "auto" "--gain" "0" "--config" "/home/chenwei/.config/mi-remote-linux/mapping.json" "--inject" "--paste-shortcut" "ctrl-shift-v" "--address" "F0:2B:18:87:37:B7"
+# 转写只用云端 ASR（参数见 cloud-asr.json），不加载本地 Paraformer（省内存）
+# 恢复本地：--engine auto 并加上 --paraformer-model-dir @BATON_ROOT@/models/paraformer-zh
+ExecStart="/home/chenwei/.local/share/mi-remote-linux/versions/0.4.1/bin/mi-remote" "voice" "--engine" "mimo-asr" "--gain" "0" "--config" "/home/chenwei/.config/mi-remote-linux/mapping.json" "--inject" "--paste-shortcut" "ctrl-shift-v" "--address" "F0:2B:18:87:37:B7"
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=20

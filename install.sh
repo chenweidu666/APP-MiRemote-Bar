@@ -49,11 +49,33 @@ if [ -f "$CFG/mapping.json" ]; then
 fi
 install -m 644 "$ROOT/system/mapping.json" "$CFG/mapping.json"
 
-if [ "$DO_PATCH" = 1 ]; then
-  echo "== 3/6 应用 mi-remote 本机补丁（长按返回可配置；默认不打）=="
-  bash "$ROOT/system/patch/apply-patch.sh" || echo "   ⚠️ 补丁跳过（可能尚未安装 mi-remote）"
+echo "== 语音模型 → $ROOT/models/paraformer-zh =="
+MODEL_DIR="$ROOT/models/paraformer-zh"
+mkdir -p "$MODEL_DIR"
+if [ ! -f "$MODEL_DIR/model.int8.onnx" ]; then
+  if command -v mi-remote >/dev/null; then
+    mi-remote model download --target "$MODEL_DIR"
+  else
+    echo "   ⚠️ 未找到 mi-remote，跳过下载（稍后：mi-remote model download --target $MODEL_DIR）"
+  fi
+fi
+if [ -f "$MODEL_DIR/model.int8.onnx" ]; then
+  echo "   已就绪 $(du -h "$MODEL_DIR/model.int8.onnx" | awk '{print $1}')"
+fi
+
+echo "== 3/6 应用 mi-remote 云端 ASR 补丁 =="
+if [ ! -f "$ROOT/system/cloud-asr.json" ] && [ -f "$ROOT/system/cloud-asr.json.example" ]; then
+  cp "$ROOT/system/cloud-asr.json.example" "$ROOT/system/cloud-asr.json"
+  chmod 600 "$ROOT/system/cloud-asr.json"
+  echo "   已从 example 生成 system/cloud-asr.json（请填入 api_key，此文件不进 git）"
+fi
+if python3 "$ROOT/system/patch/apply-mimo-asr.py"; then
+  echo "   mimo-asr 已打入本机 mi-remote"
 else
-  echo "== 3/6 跳过本机补丁（默认；需要时加 --with-patch）=="
+  echo "   ⚠️ mimo-asr 补丁跳过（可能尚未安装 mi-remote）"
+fi
+if [ "$DO_PATCH" = 1 ]; then
+  bash "$ROOT/system/patch/apply-patch.sh" --mapping || echo "   ⚠️ mapping 补丁跳过"
 fi
 
 echo "== 4/6 桌面图标 =="
@@ -85,7 +107,7 @@ if [ "$DO_SERVICE" = 1 ]; then
   echo "== 6/6 systemd 用户服务 =="
   mkdir -p "$UNITS"
   for unit in mi-remote.service mi-remote-uinputd.service; do
-    sed -e "s|/home/chenwei|$HOME|g" -e "s|~/.local/bin|$BIN|g" "$ROOT/system/$unit" > "$UNITS/$unit"
+    sed -e "s|@BATON_ROOT@|$ROOT|g" -e "s|/home/chenwei|$HOME|g" -e "s|~/.local/bin|$BIN|g" "$ROOT/system/$unit" > "$UNITS/$unit"
     echo "   $unit"
   done
   systemctl --user daemon-reload

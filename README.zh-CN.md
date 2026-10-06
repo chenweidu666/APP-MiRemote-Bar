@@ -122,6 +122,7 @@ GNOME（Mutter）**不实现** `wtype` 依赖的虚拟键盘协议，`xdotool` �
 ## 目录结构
 
 ```
+├── models/      本地 Paraformer 权重（onnx 不进 git，见 models/README.md）
 ├── app/         托盘应用（Flutter，纯托盘）
 ├── tools/       维护工具（键位图、logo 生成）—— 不安装
 ├── scripts/     mi-remote 调用的小工具 → 安装到 ~/.local/bin
@@ -139,7 +140,7 @@ GNOME（Mutter）**不实现** `wtype` 依赖的虚拟键盘协议，`xdotool` �
 
 - 只适配这一款遥控器（VID:PID `2717:32b8`）；设备名会变（`小米蓝牙语音遥控器` ↔ `MI RC`）
 - BLE 遥控器**同时只能连一个主机**：拿去控电视后，回电脑需要按「菜单 + HOME」重新配对
-- 语音识别是**本地模型**（Paraformer，233 MB），不如云端（讯飞等）准
+- 语音识别默认走**小米 MiMo 云端**（`mimo-v2.5-asr`）；本地 Paraformer 代码保留但不加载，以节省内存
 - 窗口聚焦/切换器依赖 GNOME 扩展 **`winrects@cua`**（未启用时会退化成"每次都新开窗口"，不影响其它功能）
 - 托盘应用在 Wayland 下不能设 `skipTaskbar`（会触发 `libwayland-client` 段错误），因此采用"窗口永不显示"的实现
 

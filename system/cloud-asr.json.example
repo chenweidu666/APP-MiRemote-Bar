@@ -1,0 +1,9 @@
+{
+  "provider": "xiaomi-token-plan-cn",
+  "protocol": "openai-compatible",
+  "base_url": "https://token-plan-cn.xiaomimimo.com/v1",
+  "model": "mimo-v2.5-asr",
+  "language": "zh",
+  "timeout_seconds": 20,
+  "api_key": "tp-把密钥填在这里"
+}

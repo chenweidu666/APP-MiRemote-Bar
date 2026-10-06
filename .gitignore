@@ -7,7 +7,15 @@ app/linux/flutter/ephemeral/
 pubspec.lock
 
 # 本机状态（不要提交）
+.env
+system/cloud-asr.json
+system/patch/__pycache__/
+*.pyc
 *.bak
+
+# Paraformer 权重约 232 MB，GitHub 无 LFS 时单文件上限 100 MB
+models/paraformer-zh/model.int8.onnx
+models/paraformer-zh/*.part*
 *.bak-*
 !system/mapping.json.with-*.bak
 ~*

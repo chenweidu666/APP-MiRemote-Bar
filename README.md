@@ -134,6 +134,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 ## Repository layout
 
 ```
+├── models/      local Paraformer weights (onnx not in git; see models/README.md)
 ├── app/         tray app (Flutter, tray-only, no window)
 ├── tools/       maintenance tools (keymap image, logo) — not installed
 ├── scripts/     small tools called by mi-remote → installed into ~/.local/bin
@@ -150,7 +151,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 - Only this one remote is supported (VID:PID `2717:32b8`); its HID device name changes
   (`小米蓝牙语音遥控器` ↔ `MI RC`), which the udev rule accounts for
 - A BLE remote connects to **one host at a time**: after using it with your TV, press *Menu + Home* to re-pair
-- Speech recognition uses a **local model** (Paraformer, 233 MB) — good, but not as accurate as cloud ASR
+- Speech recognition defaults to **Xiaomi MiMo cloud ASR** (`mimo-v2.5-asr`); local Paraformer stays in the tree but is not loaded
 - Window focus/switching depends on the GNOME extension **`winrects@cua`**; without it, launchers merely fall
   back to "always open a new window" (nothing else breaks)
 - The tray app must never set `skipTaskbar` on Wayland (it segfaults in `libwayland-client`), so it uses a

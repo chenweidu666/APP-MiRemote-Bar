@@ -9,9 +9,9 @@
 
 **English** · [中文说明](README.zh-CN.md)
 
-Turn a cheap Xiaomi TV Bluetooth voice remote into a full Linux desktop remote: key mapping,
-push-to-talk voice input, window switching, app launching — plus a **system tray app** that tells you
-at a glance whether the remote is connected.
+**Vibe-code from the couch.** Baton turns a cheap Xiaomi Bluetooth voice remote into a hands-free controller
+for your AI coding agent on Linux: **hold to talk** (offline speech-to-text), **tap to interrupt** the model,
+and **switch windows** between the agent, the editor and the browser — without touching the keyboard.
 
 Built for **GNOME / Wayland**, where the usual key-injection tools (`wtype`, `xdotool`) simply do not work —
 so this project ships its own ~250-line **uinput injection shim** (30 ms per keypress, versus 2.1 s for
@@ -24,10 +24,29 @@ Remote buttons ──BLE HID──► mi-remote (action engine) ──► uinput
 Remote mic     ──BLE ATVV─► IMA ADPCM decode ──► local Paraformer ASR ──► clipboard ──► Ctrl+Shift+V
 ```
 
+## The AI-agent loop, on one remote
+
+The moves you repeat all day while an agent writes your code — and the button that does each one:
+
+| What you want | Press | What happens |
+|---|---|---|
+| Dictate the next prompt | **hold Voice** | push-to-talk → local ASR (~150 ms) → pasted into the focused window. No IME switching, no cloud |
+| Stop the model mid-answer | **tap Power** | `Esc`, instantly: the double-tap test is gone, so pressing it again never misfires |
+| Unblock a stuck agent | **tap TV** | `Ctrl+B` (OpenCode: push the blocking tool to the background) |
+| Jump between agent / editor / browser | **hold Menu**, then `←`/`→` | a real switcher over **all** windows (`Alt+Tab` only toggles the last two) |
+| Open the agent or the editor | **double-tap Home** / **TV** | launches OpenCode / Cursor, raising the existing window instead of duplicating it |
+| Fix a typo in your prompt | **tap Back** | `Backspace`, instant (tap repeatedly to delete fast) |
+| Scroll a long answer | **Volume ±** | `PageUp` / `PageDown` |
+| Check it is still alive | glance at the tray | 🟢 / 🟡 / 🔴, plus a desktop notification when the remote drops |
+
+Your hands never leave the remote, and the microphone is on the remote — so you can dictate from across the
+room, not just from your desk.
+
 ## Features
 
 - 🎙️ **Push-to-talk**: hold the mic key, speak, release — the transcription is pasted into the focused window
   (fully local ASR, ~150 ms, no network, no account)
+- ⏹️ **Instant interrupt**: `Esc` on the Power key with no double-tap delay — safe to press repeatedly
 - 🚀 **One-press launch**: double-press *Home* → OpenCode, double-press *TV* → Cursor; if the target folder is
   already open, the existing window is **raised instead of duplicated**
 - 🪟 **Real window switcher**: long-press *Menu*, then `←/→` cycles through **all** windows

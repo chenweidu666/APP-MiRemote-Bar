@@ -14,7 +14,82 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "system/patch"))
 
-from mimo_asr import _read_env_file, load_api_key, load_asr_config, pcm_to_wav_bytes  # noqa: E402
+from mimo_asr import (  # noqa: E402
+    DEFAULT_CLEANUP_MODEL,
+    _read_env_file,
+    _sanitize_cleanup,
+    cleanup_config,
+    load_api_key,
+    load_asr_config,
+    pcm_to_wav_bytes,
+)
+
+
+class MimoAsrCleanupConfigTest(unittest.TestCase):
+    def test_defaults_to_enabled(self) -> None:
+        cfg = cleanup_config({})
+        self.assertTrue(cfg["enabled"])
+        self.assertEqual(cfg["model"], DEFAULT_CLEANUP_MODEL)
+
+    def test_false_disables(self) -> None:
+        self.assertFalse(cleanup_config({"cleanup": False})["enabled"])
+
+    def test_dict_overrides(self) -> None:
+        cfg = cleanup_config({"cleanup": {"enabled": False, "model": "mimo-v2.5", "min_chars": 10}})
+        self.assertFalse(cfg["enabled"])
+        self.assertEqual(cfg["model"], "mimo-v2.5")
+        self.assertEqual(cfg["min_chars"], 10)
+
+    def test_blank_strings_are_ignored(self) -> None:
+        cfg = cleanup_config({"cleanup": {"model": "   ", "prompt": ""}})
+        self.assertEqual(cfg["model"], DEFAULT_CLEANUP_MODEL)
+        self.assertTrue(cfg["prompt"])
+
+    def test_bad_numbers_fall_back(self) -> None:
+        cfg = cleanup_config({"cleanup": {"temperature": "hot", "timeout_seconds": None}})
+        self.assertEqual(cfg["temperature"], 0.2)
+        self.assertEqual(cfg["timeout_seconds"], 15.0)
+
+
+class MimoAsrCleanupSanitizeTest(unittest.TestCase):
+    ORIGINAL = "嗯那个 帮我看一下 这个 web socket 的 连接 为什么 老是 断啊 你帮 我 改 一下"
+
+    def test_strips_code_fence(self) -> None:
+        raw = "```\n帮我看一下这个 WebSocket 的连接为什么老是断，你帮我改一下。\n```"
+        self.assertEqual(
+            _sanitize_cleanup(raw, self.ORIGINAL),
+            "帮我看一下这个 WebSocket 的连接为什么老是断，你帮我改一下。",
+        )
+
+    def test_strips_label_and_quotes(self) -> None:
+        raw = "整理后：“帮我看一下这个 WebSocket 的连接为什么老是断，你帮我改一下。”"
+        self.assertEqual(
+            _sanitize_cleanup(raw, self.ORIGINAL),
+            "帮我看一下这个 WebSocket 的连接为什么老是断，你帮我改一下。",
+        )
+
+    def test_rejects_empty_and_non_string(self) -> None:
+        self.assertIsNone(_sanitize_cleanup("   ", self.ORIGINAL))
+        self.assertIsNone(_sanitize_cleanup(None, self.ORIGINAL))
+        self.assertIsNone(_sanitize_cleanup(["x"], self.ORIGINAL))
+
+    def test_rejects_refusal(self) -> None:
+        self.assertIsNone(_sanitize_cleanup("抱歉，我无法整理这段内容。", self.ORIGINAL))
+
+    def test_rejects_too_short(self) -> None:
+        original = "帮我把 app 下面的 web socket 连接重连逻辑全部检查一遍然后修好谢谢" * 2
+        self.assertIsNone(_sanitize_cleanup("改好了", original))
+
+    def test_rejects_runaway_length(self) -> None:
+        self.assertIsNone(_sanitize_cleanup("解释" * 200, self.ORIGINAL))
+
+    def test_rejects_tool_call_output(self) -> None:
+        raw = "我来帮你排查 WebSocket 断连的问题。<tool_call><function=search_files>"
+        self.assertIsNone(_sanitize_cleanup(raw, self.ORIGINAL))
+
+    def test_accepts_normal_text(self) -> None:
+        raw = "帮我看一下这个 WebSocket 的连接为什么老是断，你帮我改一下。"
+        self.assertEqual(_sanitize_cleanup(raw, self.ORIGINAL), raw)
 
 
 class MimoAsrHelpersTest(unittest.TestCase):

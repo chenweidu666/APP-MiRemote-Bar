@@ -47,6 +47,7 @@ room, not just from your desk.
 - 🎙️ **Push-to-talk**: hold the mic key, speak, release — the transcription is pasted into the focused window.
   **Recommended ASR: Xiaomi MiMo** (`mimo-v2.5-asr`). The TV-remote mic is far-field; the cloud model is built for that, lands in about 0.7–0.9 s, and avoids hundreds of MB of local ONNX RAM.
   List price is **¥0.5 / audio hour** (~$0.074); Token Plan bills **30M Credits per audio hour**. A 5-second utterance is about **¥0.0007**. Put the key in local `system/cloud-asr.json`. Longer rationale: [`docs/指南.md` §1.3.1](docs/指南.md)
+- ✍️ **Optional second pass**: a transcription-cleanup step (the `cleanup` block in `cloud-asr.json`, on by default) turns spoken wording into a tidy prompt — fixes homophones, punctuation and filler while leaving code, paths and jargon untouched. It falls back to the raw transcript on any failure, but costs a few seconds of extra latency; set `"cleanup": {"enabled": false}` to skip it.
 - ⏹️ **Instant interrupt**: `Esc` on the Power key with no double-tap delay — safe to press repeatedly
 - 🚀 **One-press launch**: double-press *Home* → OpenCode, double-press *TV* → Cursor; if the target folder is
   already open, the existing window is **raised instead of duplicated**

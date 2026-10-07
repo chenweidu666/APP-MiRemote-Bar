@@ -5,5 +5,13 @@
   "model": "mimo-v2.5-asr",
   "language": "zh",
   "timeout_seconds": 20,
-  "api_key": "tp-把密钥填在这里"
+  "api_key": "tp-把密钥填在这里",
+  "cleanup": {
+    "enabled": true,
+    "model": "mimo-v2.6-flash",
+    "timeout_seconds": 15,
+    "max_completion_tokens": 1024,
+    "temperature": 0.2,
+    "min_chars": 0
+  }
 }

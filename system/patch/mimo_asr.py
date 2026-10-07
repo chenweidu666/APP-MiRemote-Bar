@@ -168,6 +168,12 @@ _QUOTE_PAIRS = (("“", "”"), ("「", "」"), ("『", "』"), ('"', '"'), ("'"
 _REFUSAL_STARTS = ("抱歉", "对不起", "无法", "我不能", "i cannot", "i'm sorry", "i am sorry")
 # 模型有时会把转写内容当成任务去执行，吐工具调用——这种绝对不能上屏。
 _AGENT_MARKERS = ("<tool_call", "</tool_call", "<function=", "<parameter=", "<|tool", "<|endoftext")
+# 长度守卫：只挡「整段被吞」和「凭空扩写」，不挡正常的去口水词。
+# 短句本身字少，去完口头语就能砍掉一大半，所以下限放宽。
+_SHORT_INPUT_CHARS = 24
+_MIN_KEEP_LONG = 0.4
+_MIN_KEEP_SHORT = 0.2
+_MAX_GROWTH = 2.2
 
 
 def _sanitize_cleanup(raw: Any, original: str) -> str | None:
@@ -201,7 +207,8 @@ def _sanitize_cleanup(raw: Any, original: str) -> str | None:
         logger.warning("整理结果像拒答，保留原文")
         return None
     ratio = len(text) / max(len(original), 1)
-    if ratio < 0.4 or ratio > 2.2:
+    floor = _MIN_KEEP_LONG if len(original) >= _SHORT_INPUT_CHARS else _MIN_KEEP_SHORT
+    if ratio < floor or ratio > _MAX_GROWTH:
         logger.warning("整理长度异常（%d → %d 字），保留原文", len(original), len(text))
         return None
     return text

@@ -83,6 +83,15 @@ class MimoAsrCleanupSanitizeTest(unittest.TestCase):
     def test_rejects_runaway_length(self) -> None:
         self.assertIsNone(_sanitize_cleanup("解释" * 200, self.ORIGINAL))
 
+    def test_short_input_may_compress_a_lot(self) -> None:
+        # 短句里全是口头语时，去完剩下几个字是正常的，不能拦。
+        original = "嗯，那个，就是，测试一下，测试一下。"
+        self.assertEqual(_sanitize_cleanup("测试一下。", original), "测试一下。")
+
+    def test_short_input_still_rejects_catastrophic_shrink(self) -> None:
+        original = "嗯，那个，就是，测试一下，测试一下。"
+        self.assertIsNone(_sanitize_cleanup("嗯", original))
+
     def test_rejects_tool_call_output(self) -> None:
         raw = "我来帮你排查 WebSocket 断连的问题。<tool_call><function=search_files>"
         self.assertIsNone(_sanitize_cleanup(raw, self.ORIGINAL))

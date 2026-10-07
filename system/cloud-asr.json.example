@@ -7,7 +7,7 @@
   "timeout_seconds": 20,
   "api_key": "tp-把密钥填在这里",
   "cleanup": {
-    "enabled": true,
+    "enabled": false,
     "model": "mimo-v2.6-flash",
     "timeout_seconds": 15,
     "max_completion_tokens": 1024,

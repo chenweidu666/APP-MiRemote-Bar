@@ -26,10 +26,13 @@ from mimo_asr import (  # noqa: E402
 
 
 class MimoAsrCleanupConfigTest(unittest.TestCase):
-    def test_defaults_to_enabled(self) -> None:
+    def test_defaults_to_disabled(self) -> None:
         cfg = cleanup_config({})
-        self.assertTrue(cfg["enabled"])
+        self.assertFalse(cfg["enabled"])
         self.assertEqual(cfg["model"], DEFAULT_CLEANUP_MODEL)
+
+    def test_enabled_by_flag(self) -> None:
+        self.assertTrue(cleanup_config({"cleanup": {"enabled": True}})["enabled"])
 
     def test_false_disables(self) -> None:
         self.assertFalse(cleanup_config({"cleanup": False})["enabled"])

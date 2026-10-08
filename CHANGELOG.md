@@ -8,6 +8,8 @@
 ### 新增（Added）
 
 - **长按 OK = `Ctrl+Enter`**：给 OpenCode 网页版发送消息；短按仍是 `Enter`
+- **托盘显示遥控器电量**：读遥控器 Battery Service（`0x180F`，`bluetoothctl info` 的 `Battery Percentage`），在托盘菜单显示 `电量：84%`；≤20% 标 ⚠️ 并弹一次「电量偏低」提醒（回到 >25% 后重新武装）
+- **长按返回 = 连续快删**：长按 ≥350ms 触发 `backspace-burst`，借系统按键重复连删约 25 个字符（短按仍是删一个）。脚本从 `extras/` 提回 `scripts/`；需配合本机 mapping 补丁，重装 mi-remote 后重跑 `apply-patch.sh --mapping`
 - **小米 MiMo 云端 ASR**：`system/cloud-asr.json` 同时放地址、模型和 api_key（gitignore）；挂掉时桌面通知，可用 `cloud-asr-health` 探测。文档写明建议理由（远场识别率、内存与时延、官方单价 ¥0.5/音频小时 与 Token Plan 30M Credits/小时）
 - **转写后整理（可选，默认关）**：`mimo-v2.5-asr` 的提示词由小米网关注入、调用方改不了，所以「口语 → 书面 prompt」改成转写后再走一道对话模型（`mimo-v2.6-flash`）。`cloud-asr.json` 的 `cleanup` 段控制开关/模型/提示词/超时；任何失败（超时、空结果、长度异常、像拒答、像工具调用）都**回退转写原文**，保证不掉字。默认关是因为延迟：只走 ASR 实测约 **1 秒**，加一层约 **2 秒**（重启后第一句约 7.5 秒）
 - **仓库结构**：新增 `tools/`（维护工具：键位图生成、logo 生成），运行时脚本仍留在 `scripts/`（会被装进 `~/.local/bin`）
@@ -62,4 +64,6 @@
 - 终端里语音粘贴无效 → 服务参数 `--paste-shortcut ctrl-shift-v`
 - 垫片拉起守护进程时解释器无 `evdev` → 自动挑选带 evdev 的解释器（venv python）
 - 蓝牙设备名变化导致 udev 规则失效、按键静默失效 → 多重匹配
+- **云端 ASR 语种从写死 `zh` 改为 `auto`**：`mimo-v2.5-asr` 支持中英双语与代码混说，官方 `asr_options.language` 默认就是 `auto`；写死 `zh` 会把英文按中文音译（`Cursor → 克鲁兹`）
+- **送云端前加 RMS 归一化（AGC）**：把每句话归一到统一目标电平（`normalize` 段，默认 `-16 dBFS`），峰值上限只压尖峰而不整句拉低；实测模型对电平不敏感，故定位为一致性保险
 - **重启后遥控器整只失效（按键 + 语音全无反应）**：BlueZ 的 HID-over-GATT 通道偶尔没挂上 —— 蓝牙显示“已连接”、GATT 里也有 HID 服务，但 `/dev/input` 没有节点。仅“断开重连”清不掉。新增自愈脚本 `scripts/baton-bt-recover`（轻量重连 → `block/unblock` → 重启 `bluetooth.service`，逐级复检），托盘「重连蓝牙（自愈）」改调它，并新增 `baton-recover.service` 在登录后自动修复一次（见 `docs/指南.md` 坑 12）

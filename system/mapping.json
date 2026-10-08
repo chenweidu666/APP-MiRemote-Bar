@@ -163,6 +163,13 @@
         "type": "key_stroke",
         "key": "backspace"
       },
+      "hold": {
+        "type": "command",
+        "argv": [
+          "/home/chenwei/.local/bin/backspace-burst",
+          "1.2"
+        ]
+      },
       "layers": {
         "1": {
           "type": "system",

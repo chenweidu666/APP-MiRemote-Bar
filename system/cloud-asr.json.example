@@ -3,9 +3,14 @@
   "protocol": "openai-compatible",
   "base_url": "https://token-plan-cn.xiaomimimo.com/v1",
   "model": "mimo-v2.5-asr",
-  "language": "zh",
+  "language": "auto",
   "timeout_seconds": 20,
   "api_key": "tp-把密钥填在这里",
+  "normalize": {
+    "enabled": true,
+    "target_rms_dbfs": -16,
+    "peak_ceiling_dbfs": -2
+  },
   "cleanup": {
     "enabled": false,
     "model": "mimo-v2.6-flash",

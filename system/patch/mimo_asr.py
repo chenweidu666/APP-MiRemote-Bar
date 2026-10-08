@@ -138,6 +138,117 @@ def pcm_to_wav_bytes(samples: np.ndarray, sample_rate: int) -> bytes:
     return buf.getvalue()
 
 
+# --- 语种 ---
+#
+# mimo-v2.5-asr 是中英双语、支持代码混说（code-switching）的模型；它的
+# asr_options.language 只接受单一值 auto / zh / en，官方默认 auto。
+# 早前本服务把语种写死 zh，中英混说时英文会被按中文去猜 —— 改成以
+# cloud-asr.json 的 language 为准，缺省 auto（自动检测）。
+_ASR_LANGUAGES = ("auto", "zh", "en")
+
+
+def resolve_asr_language(cfg: dict[str, Any], fallback: str | None = None) -> str:
+    """决定送给云端的语种；配置优先，缺省 auto。"""
+    raw = str(cfg.get("language") or fallback or "auto").strip().lower()
+    if raw not in _ASR_LANGUAGES:
+        logger.warning("language=%r 不受支持（仅 auto/zh/en），改用 auto", raw)
+        return "auto"
+    return raw
+
+
+# --- 送云端前的 RMS 归一化（AGC）---
+#
+# 遥控麦电平很不稳（实测 RMS 1.1e4–2.2e4，即 -9～-3 dBFS），同一句话的
+# 绝对电平随远近/音量变化，模型体感时好时坏。这里把每句话归一到统一
+# 的 RMS 目标，并用峰值上限保证不会再顶到 0 dBFS。
+#
+# 注意：ADPCM 解码器里的预测器钳位（遥控器端偏热）在主机侧无法复原，
+# 归一化能保证「送出去的信号电平一致、不削顶」，但不能还原已经削掉的波形。
+_DEFAULT_NORMALIZE: dict[str, Any] = {
+    "enabled": True,
+    "target_rms_dbfs": -16.0,   # 目标 RMS（0 dBFS = 32768）
+    "peak_ceiling_dbfs": -2.0,  # 峰值上限
+    "max_gain_db": 15.0,
+    "min_gain_db": -12.0,
+    "min_input_rms": 60.0,      # 低于此 RMS（≈-55 dBFS）视为静音，不放大
+}
+_FULL_SCALE = 32768.0
+
+
+def _amp_from_dbfs(db: float) -> float:
+    return 10.0 ** (db / 20.0)
+
+
+def normalize_config(cfg: dict[str, Any]) -> dict[str, Any]:
+    settings = dict(_DEFAULT_NORMALIZE)
+    raw = cfg.get("normalize")
+    if raw is False:
+        settings["enabled"] = False
+        return settings
+    if not isinstance(raw, dict):
+        return settings
+    if "enabled" in raw:
+        settings["enabled"] = bool(raw["enabled"])
+    for name in (
+        "target_rms_dbfs",
+        "peak_ceiling_dbfs",
+        "max_gain_db",
+        "min_gain_db",
+        "min_input_rms",
+    ):
+        value = raw.get(name)
+        if value is None:
+            continue
+        try:
+            settings[name] = float(value)
+        except (TypeError, ValueError):
+            logger.warning("normalize.%s 取值无效，用默认值 %r", name, _DEFAULT_NORMALIZE[name])
+    return settings
+
+
+def normalize_pcm(
+    samples: np.ndarray,
+    cfg: dict[str, Any],
+    sample_rate: int = 16000,
+) -> np.ndarray:
+    """把整句话的 RMS 归一到目标电平，并保证峰值不超上限。"""
+    settings = normalize_config(cfg)
+    if not settings["enabled"] or samples is None or len(samples) == 0:
+        return samples
+
+    x = samples.astype(np.float64, copy=False)
+    rms = float(np.sqrt(np.mean(x * x)))
+    peak = float(np.max(np.abs(x)))
+    if peak <= 0:
+        return samples
+    if rms < settings["min_input_rms"]:
+        logger.info("归一化跳过：RMS %.0f 低于底噪门限 %.0f", rms, settings["min_input_rms"])
+        return samples
+
+    gain = _amp_from_dbfs(settings["target_rms_dbfs"]) * _FULL_SCALE / rms
+    gain = min(
+        max(gain, _amp_from_dbfs(settings["min_gain_db"])),
+        _amp_from_dbfs(settings["max_gain_db"]),
+    )
+
+    # 峰值上限只用于压住个别尖峰（点击/瞬态），不因此把整句拉低 ——
+    # 早期实现用"整句缩放"满足峰值上限，一个尖峰就能把整句压低十几 dB。
+    ceiling = _amp_from_dbfs(settings["peak_ceiling_dbfs"]) * _FULL_SCALE
+    y = np.clip(x * gain, -ceiling, ceiling).astype("<i2")
+    limited = int(np.count_nonzero(np.abs(x * gain) > ceiling))
+    yf = y.astype(np.float64)
+    logger.info(
+        "音频归一化：%.1f dB（RMS %.0f→%.0f，峰值 %.0f→%.0f，压峰 %d 样本）",
+        20.0 * np.log10(gain),
+        rms,
+        float(np.sqrt(np.mean(yf * yf))),
+        peak,
+        float(np.max(np.abs(yf))),
+        limited,
+    )
+    return y
+
+
 def cleanup_config(cfg: dict[str, Any]) -> dict[str, Any]:
     """读 cloud-asr.json 的 cleanup 段；缺省即默认开启。"""
     settings = dict(DEFAULT_CLEANUP)
@@ -295,10 +406,9 @@ def transcribe_pcm(
 
     import base64
 
+    samples = normalize_pcm(samples, cfg, sample_rate)
     wav = pcm_to_wav_bytes(samples, sample_rate)
-    asr_language = language or str(cfg.get("language") or "zh")
-    if asr_language.lower().startswith("zh"):
-        asr_language = "zh"
+    asr_language = resolve_asr_language(cfg, language)
     model = str(cfg.get("model") or "").strip()
     base = str(cfg.get("base_url") or "").rstrip("/")
     if not model or not base:

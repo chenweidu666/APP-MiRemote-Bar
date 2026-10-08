@@ -37,6 +37,7 @@ class RemoteStatus {
     required this.service,
     required this.injector,
     this.hidNode,
+    this.battery,
   });
 
   final bool bluetooth;
@@ -44,6 +45,9 @@ class RemoteStatus {
   final bool service;
   final bool injector;
   final String? hidNode;
+
+  /// 遥控器电量百分比（0–100）；未连接或固件未上报时为 null
+  final int? battery;
 
   bool get allGood => bluetooth && hid && service && injector;
 
@@ -73,8 +77,15 @@ Future<String> _run(String exe, List<String> args) async {
   }
 }
 
-Future<bool> _bluetoothConnected() async =>
-    (await _run('bluetoothctl', ['info', kRemoteMac])).contains('Connected: yes');
+/// 一次 bluetoothctl info 同时取回连接状态与电量
+/// （电量走遥控器的 Battery Service 0x180F，行形如 `Battery Percentage: 0x54 (84)`）
+Future<(bool, int?)> _bluetoothInfo() async {
+  final out = await _run('bluetoothctl', ['info', kRemoteMac]);
+  final connected = out.contains('Connected: yes');
+  final match =
+      RegExp(r'Battery Percentage:\s*0x[0-9a-fA-F]+\s*\((\d+)\)').firstMatch(out);
+  return (connected, match == null ? null : int.tryParse(match.group(1)!));
+}
 
 Future<(bool, String?)> _hidNode() async {
   try {
@@ -112,7 +123,7 @@ Future<bool> _unitActive(String unit) async =>
     'active';
 
 Future<RemoteStatus> _probe() async {
-  final bt = await _bluetoothConnected();
+  final (bt, battery) = await _bluetoothInfo();
   final (hid, node) = await _hidNode();
   return RemoteStatus(
     bluetooth: bt,
@@ -120,6 +131,7 @@ Future<RemoteStatus> _probe() async {
     service: await _unitActive(kService),
     injector: await _unitActive(kInjectorService),
     hidNode: node,
+    battery: battery,
   );
 }
 
@@ -267,6 +279,8 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
   // 上一次的链路状态（null = 还没探测过，用于跳过首次）
   bool? _lastBluetooth;
   DateTime? _lastNotify;
+  // 低电量只提醒一次；电量回到 25% 以上后重新武装
+  bool _lowBatteryNotified = false;
 
   @override
   void initState() {
@@ -321,11 +335,25 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
     _lastBluetooth = s.bluetooth;
   }
 
+  /// 低电量提醒：≤20% 提醒一次；回到 >25% 后重新武装
+  Future<void> _notifyBattery(RemoteStatus s) async {
+    final b = s.battery;
+    if (b == null) return;
+    if (b <= 20 && !_lowBatteryNotified) {
+      _lowBatteryNotified = true;
+      await _notify('遥控器电量偏低', '剩余 $b%，记得充电');
+    } else if (b > 25) {
+      _lowBatteryNotified = false;
+    }
+  }
+
   Future<void> _refresh() async {
     final s = await _probe();
     await _notifyTransitions(s);
+    await _notifyBattery(s);
     await _safe(() => trayManager.setIcon(s.iconAsset));
-    await _safe(() => trayManager.setToolTip('Baton Mi · ${s.headline}'));
+    await _safe(() => trayManager.setToolTip(
+        'Baton Mi · ${s.headline}${s.battery != null ? " · 电量 ${s.battery}%" : ""}'));
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'status', label: '状态：${s.headline}', disabled: true),
       MenuItem.separator(),
@@ -343,6 +371,12 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
         key: 'svc',
         label: '服务：${s.service ? "运行中" : "已停止"}'
             ' ／ 注入：${s.injector ? "运行中" : "已停止"}',
+        disabled: true,
+      ),
+      MenuItem(
+        key: 'battery',
+        label: '电量：${s.battery != null ? "${s.battery}%" : "未知"}'
+            '${s.battery != null && s.battery! <= 20 ? "  ⚠️ 偏低" : ""}',
         disabled: true,
       ),
       MenuItem.separator(),

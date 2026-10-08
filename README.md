@@ -105,6 +105,7 @@ Flutter, **tray-only** (no window, no popups). Clicking the icon opens a small m
 Status: remote connected, all good
 ────────────────────────────────────────
 Bluetooth: connected   Input node: /dev/input/event12   Service: running / Injector: running
+Battery: 84%
 ────────────────────────────────────────
 Keymap cheat sheet ▸    ← generated live from mapping.json
 ────────────────────────────────────────

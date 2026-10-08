@@ -2,5 +2,5 @@
 
 | 文件 | 说明 |
 |---|---|
-| `backspace-burst` | 「长按返回 = 连续快删」的实现（按住 Backspace 借系统按键重复连删）。<br>该功能**已按需求回退**（现在长按同短按），保留备查。 |
-| `../system/patch/` | 让「长按返回可配置」的本机补丁（已回退，未应用）。想恢复连删时：先 `bash system/patch/apply-patch.sh`，再把 `back.hold` 指回 `extras/backspace-burst` 并把该脚本装到 `~/.local/bin`。 |
+| `../scripts/backspace-burst` | 「长按返回 = 连续快删」的实现（按住 Backspace 借系统按键重复连删）。<br>**已于 2026-10-08 重新启用**，脚本从 `extras/` 提回 `scripts/`，由 `install.sh` 安装。 |
+| `../system/patch/` | 让「长按返回可配置」的本机补丁（`apply-patch.sh --mapping`）+ 唤醒即重连补丁（`apply-wake-reconnect.py`）。重装/升级 mi-remote 后需重跑 `apply-patch.sh`。 |

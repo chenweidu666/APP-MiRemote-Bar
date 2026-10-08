@@ -1,0 +1,139 @@
+#!/bin/bash
+# Baton Mi 遥控器蓝牙看门狗 —— 遥控器睡醒/掉线后自动连回来。
+#
+# 为什么要它（本机实测结论）：
+#   1. 遥控器休眠后 BLE 链路会掉，但它在"睡着"时仍在广播（bluetoothctl info 的
+#      RSSI 一直有值）。所以问题不是它不可达。
+#   2. BlueZ 5.72 默认的 ReconnectUUIDs 里没有 HID(00001812)，链路丢失后 BlueZ
+#      不会主动把遥控器连回来。
+#   3. mi-remote 自己会重试（1~15 秒），多数情况下几秒内就能连回来；但每次超时
+#      都会在 BlueZ 里留下一个"挂起的连接请求"（Operation already in progress），
+#      一旦卡住，之后所有连接尝试全被挡住，只能重启蓝牙栈才解开。
+#   4. 实测：停掉 mi-remote 后单独 connect 仍被挂起挡住；重启 bluetooth.service
+#      后 connect 必然成功；而"先 disconnect（取消挂起）再 connect"也能连上。
+#
+# 策略：正常时完全不打扰 mi-remote；只有当遥控器掉线且 mi-remote 在宽限期
+# （GRACE，默认 20 秒）内没能自己连回来时，才接管：
+#   暂停 mi-remote → 轻路径 disconnect+connect → 连不上再重启蓝牙栈 → 拉起 mi-remote
+# 长期连不上（遥控器长时间休眠）时按指数退避空转，避免反复重启蓝牙打扰其它设备。
+#
+# 用法：
+#   baton-bt-watchdog          常驻（systemd 用户服务）
+#   baton-bt-watchdog --once   宽限+恢复跑一轮就退出（手动排障用）
+set -uo pipefail
+
+MAC="${BATON_MAC:-F0:2B:18:87:37:B7}"
+VENDOR="${BATON_VENDOR:-2717}"
+PRODUCT="${BATON_PRODUCT:-32b8}"
+REMOTE_SVC="${BATON_REMOTE_SVC:-mi-remote.service}"
+
+GRACE="${BATON_WD_GRACE:-20}"
+HEALTHY_SLEEP="${BATON_WD_HEALTHY_SLEEP:-8}"
+FAILED_SLEEP="${BATON_WD_FAILED_SLEEP:-15}"
+MAX_FAILED_SLEEP="${BATON_WD_MAX_FAILED_SLEEP:-300}"
+SOFT_ATTEMPTS="${BATON_WD_SOFT_ATTEMPTS:-2}"
+MAX_ATTEMPTS="${BATON_WD_MAX_ATTEMPTS:-5}"
+RESTART_COOLDOWN="${BATON_WD_RESTART_COOLDOWN:-60}"
+MAX_RESTART_COOLDOWN="${BATON_WD_MAX_RESTART_COOLDOWN:-600}"
+CONNECT_TIMEOUT="${BATON_WD_CONNECT_TIMEOUT:-8}"
+
+ONCE=0
+[ "${1:-}" = "--once" ] && ONCE=1
+
+log() { echo "[$(date +%H:%M:%S)] $*"; }
+
+bt_connected() { bluetoothctl info "$MAC" 2>/dev/null | grep -q "Connected: yes"; }
+
+# 按 VID:PID 找遥控器按键节点（与托盘 / baton-bt-recover 一致）
+hid_node() {
+  local d v p
+  for d in /sys/class/input/event*; do
+    [ -r "$d/device/id/vendor" ] 2>/dev/null || continue
+    v=$(cat "$d/device/id/vendor" 2>/dev/null)
+    p=$(cat "$d/device/id/product" 2>/dev/null)
+    if [ "$v" = "$VENDOR" ] && [ "$p" = "$PRODUCT" ]; then
+      basename "$d"
+      return 0
+    fi
+  done
+  return 1
+}
+
+healthy() { bt_connected && hid_node >/dev/null; }
+
+svc_active() { systemctl --user is-active --quiet "$REMOTE_SVC"; }
+svc_stop()  { if svc_active; then log "暂停 $REMOTE_SVC（避免连接请求打架）"; systemctl --user stop "$REMOTE_SVC" 2>/dev/null; fi; }
+svc_start() { if ! svc_active; then systemctl --user start "$REMOTE_SVC" 2>/dev/null; log "已恢复 $REMOTE_SVC"; fi; }
+
+try_connect() { timeout "$CONNECT_TIMEOUT" bluetoothctl connect "$MAC" >/dev/null 2>&1; }
+
+last_restart=0
+restart_cooldown="$RESTART_COOLDOWN"
+
+# 一个恢复回合；返回 0 = 已连上
+recover_episode() {
+  local attempt
+  svc_stop
+  for ((attempt = 1; attempt <= MAX_ATTEMPTS; attempt++)); do
+    if healthy; then return 0; fi
+
+    # 轻路径：先 disconnect 取消 BlueZ 里挂起的连接请求，再重连
+    timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1
+    sleep 1
+    log "尝试连接（$attempt/$MAX_ATTEMPTS）…"
+    try_connect
+    if bt_connected; then return 0; fi
+
+    # 重路径：轻路径连试几次不行，重启蓝牙栈（最有效，但会短暂影响其它蓝牙设备）
+    if [ "$attempt" -ge "$SOFT_ATTEMPTS" ] && [ $(( $(date +%s) - last_restart )) -ge "$restart_cooldown" ]; then
+      log "轻路径无效 → 重启蓝牙栈"
+      systemctl --no-ask-password restart bluetooth >/dev/null 2>&1
+      last_restart=$(date +%s)
+      restart_cooldown=$(( restart_cooldown * 2 ))
+      [ "$restart_cooldown" -gt "$MAX_RESTART_COOLDOWN" ] && restart_cooldown="$MAX_RESTART_COOLDOWN"
+      sleep 4
+      try_connect
+      if bt_connected; then return 0; fi
+    fi
+    sleep 2
+  done
+  log "❌ 本回合未连上（遥控器可能仍在休眠，按任意键唤醒）"
+  return 1
+}
+
+log "蓝牙看门狗启动（MAC=$MAC, 宽限 ${GRACE}s）"
+if [ "$ONCE" = 1 ]; then
+  if healthy; then log "一切正常，无需处理"; exit 0; fi
+fi
+
+failed_sleep="$FAILED_SLEEP"
+while true; do
+  if healthy; then
+    failed_sleep="$FAILED_SLEEP"
+    sleep "$HEALTHY_SLEEP"
+    continue
+  fi
+
+  # 先给 mi-remote 自己重连的宽限期，避免和它的正常重连抢
+  sleep "$GRACE"
+  if healthy; then
+    failed_sleep="$FAILED_SLEEP"
+    continue
+  fi
+
+  log "掉线超过 ${GRACE}s，看门狗接管"
+  if recover_episode; then
+    svc_start
+    failed_sleep="$FAILED_SLEEP"
+    sleep 3
+  else
+    svc_start
+    [ "$ONCE" = 1 ] && exit 1
+    log "下轮 $(( failed_sleep )) 秒后再试"
+    sleep "$failed_sleep"
+    failed_sleep=$(( failed_sleep * 2 ))
+    [ "$failed_sleep" -gt "$MAX_FAILED_SLEEP" ] && failed_sleep="$MAX_FAILED_SLEEP"
+  fi
+
+  [ "$ONCE" = 1 ] && exit 0
+done

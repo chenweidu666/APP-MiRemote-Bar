@@ -7,6 +7,7 @@
 
 ### 新增（Added）
 
+- **蓝牙看门狗 `baton-bt-watchdog`**：修复"遥控器睡着后不会自己连回来"。BlueZ 5.72 默认不为 HID 设备重连，且 `mi-remote` 每次连接超时都会在 BlueZ 里留下一个挂起的连接请求（`Operation already in progress`），把后续尝试全挡住。看门狗平时只体检；掉线并超过 20 秒宽限后才接管（暂停 `mi-remote` → `disconnect`+`connect` → 兜底重启蓝牙栈 → 拉起 `mi-remote`），长期连不上按 15s→300s 指数退避。随机自启服务 `baton-bt-watchdog.service`（坑 13）
 - **长按 OK = `Ctrl+Enter`**：给 OpenCode 网页版发送消息；短按仍是 `Enter`
 - **托盘显示遥控器电量**：读遥控器 Battery Service（`0x180F`，`bluetoothctl info` 的 `Battery Percentage`），在托盘菜单显示 `电量：84%`；≤20% 标 ⚠️ 并弹一次「电量偏低」提醒（回到 >25% 后重新武装）
 - **长按返回 = 连续快删**：长按 ≥350ms 触发 `backspace-burst`，借系统按键重复连删约 25 个字符（短按仍是删一个）。脚本从 `extras/` 提回 `scripts/`；需配合本机 mapping 补丁，重装 mi-remote 后重跑 `apply-patch.sh --mapping`

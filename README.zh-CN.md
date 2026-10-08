@@ -150,6 +150,7 @@ GNOME（Mutter）**不实现** `wtype` 依赖的虚拟键盘协议，`xdotool` �
 | 现象 | 解决 |
 |---|---|
 | 按遥控器没反应 | 看托盘图标颜色；蓝牙断开时按任意键唤醒，或托盘菜单 →「重连蓝牙（自愈）」 |
+| **遥控器睡着后不自动连回**（一直"连接超时"） | 已修：`baton-bt-watchdog.service` 在掉线超过宽限期后自动连回（坑 13）。手动排查 `baton-bt-watchdog --once` |
 | **重启后按键和语音全失效**（蓝牙显示已连接、但没有按键节点） | BlueZ 的 HID-over-GATT 没挂上（坑 12）。登录时 `baton-recover.service` 会自动修复；也可手动 `baton-bt-recover`，或托盘 →「重连蓝牙（自愈）」 |
 | 按键节点找不到 / 权限不足 | `bash install.sh` 重装 udev 规则（或 `getfacl /dev/input/eventN` 看 ACL） |
 | 语音识别结果没上屏 | 终端里粘贴是 `Ctrl+Shift+V`（服务参数已指定）；文本仍在剪贴板 |

@@ -164,6 +164,7 @@ because the upstream header libraries are gone. Hence a small uinput shim:
 | Symptom | Fix |
 |---|---|
 | Remote does nothing | Check the tray icon colour; if Bluetooth is down, press any key to wake it, or use tray → "Reconnect Bluetooth (self-heal)" |
+| **Remote stops responding after it sleeps / won't reconnect by itself** | Fixed: `baton-bt-watchdog.service` auto-reconnects once the remote is off for more than a grace period (pitfall 13). Manual check: `baton-bt-watchdog --once` |
 | **After a reboot both keys and voice are dead** (Bluetooth says connected but no input node) | BlueZ failed to attach the HID-over-GATT channel (pitfall 12). `baton-recover.service` self-heals at login; you can also run `baton-bt-recover`, or use tray → "Reconnect Bluetooth (self-heal)" |
 | Input node missing / permission denied | Re-run `./install.sh` (re-installs the udev rule), or check `getfacl /dev/input/eventN` |
 | Voice text doesn't appear | In terminals the paste shortcut is `Ctrl+Shift+V` (already configured); the text is still on the clipboard |

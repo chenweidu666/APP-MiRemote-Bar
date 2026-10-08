@@ -1,0 +1,15 @@
+# Baton Mi 遥控器蓝牙看门狗：遥控器睡醒/掉线后自动连回来
+# 详见 scripts/baton-bt-watchdog 顶部说明（先轻路径 disconnect+connect，再兜底重启蓝牙栈）
+[Unit]
+Description=Baton Mi RC003 Bluetooth auto-reconnect watchdog
+After=graphical-session.target bluetooth.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/baton-bt-watchdog
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

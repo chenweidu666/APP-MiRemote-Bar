@@ -1,0 +1,14 @@
+# 登录后自愈：修复重启后遥控器 HID 按键节点不挂载导致按键/语音全失效
+[Unit]
+Description=Baton Mi auto-recover remote HID node after login
+After=graphical-session.target mi-remote.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+# 给蓝牙与遥控器一点建连时间，再检测并按需逐级恢复（含重启 bluetooth.service）
+ExecStart=/bin/sh -c 'sleep 6; exec "%h/.local/bin/baton-bt-recover" --quiet'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical-session.target

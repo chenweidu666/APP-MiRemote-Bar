@@ -354,7 +354,7 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
       MenuItem.separator(),
       MenuItem(key: 'recheck', label: _busy ? '处理中…' : '重新检测'),
       MenuItem(key: 'restart', label: '重启遥控服务'),
-      MenuItem(key: 'bluetooth', label: '重连蓝牙'),
+      MenuItem(key: 'bluetooth', label: _busy ? '处理中…' : '重连蓝牙（自愈）'),
       MenuItem.separator(),
       MenuItem(key: 'log', label: '查看服务日志'),
       MenuItem(key: 'doc', label: '打开使用指南'),
@@ -383,13 +383,11 @@ class _TrayControllerState extends State<_TrayController> with TrayListener {
         await _refresh();
         break;
       case 'bluetooth':
+        // 交给自愈脚本：轻量重连 → block/unblock → 必要时重启 bluetooth.service。
+        // 仅"断开重连"清不掉 BlueZ 的 HID-over-GATT 卡死（见 docs/指南.md 坑 12）。
         _busy = true;
-        await _run('systemctl', ['--user', 'stop', kService]);
-        await Future.delayed(const Duration(seconds: 1));
-        await _run('bluetoothctl', ['connect', kRemoteMac]);
-        await Future.delayed(const Duration(seconds: 3));
-        await _run('systemctl', ['--user', 'start', kService]);
-        await Future.delayed(const Duration(seconds: 3));
+        await _refresh();
+        await _run('$kHome/.local/bin/baton-bt-recover', const []);
         _busy = false;
         await _refresh();
         break;

@@ -1,0 +1,127 @@
+#!/bin/bash
+# Baton Mi 蓝牙自愈：修复「重启后遥控器按键/语音全都不生效」。
+#
+# 症状：mi-remote 服务与注入守护都在运行，蓝牙也显示「已连接」、GATT 上甚至有 HID
+# 服务（00001812），但 BlueZ 没有把遥控器的 HID-over-GATT 通道挂成 /dev/input/eventN。
+# 于是按键没有节点可读、语音也收不到通知 —— 整只遥控器像死了一样。
+#
+# 处理：按 轻 → 重 逐级恢复，每级之后都重新检测按键节点：
+#   1) 什么都不动，先等几秒（正常晚挂载）
+#   2) 轻量重连：停服务 → 蓝牙断开 → 连接 → 起服务
+#   3) block/unblock：强制 BlueZ 丢掉旧链路重新建连
+#   4) 重启 bluetooth.service（最后手段，需要 polkit 授权）
+#
+# 说明：蓝牙「未连接」时不做任何破坏性操作（多半只是遥控器休眠，按任意键即可唤醒）。
+#
+# 用法：
+#   baton-bt-recover           正常恢复（托盘「重连蓝牙」与登录自愈都用它）
+#   baton-bt-recover --check   只检测，不修改（退出码 0=正常 / 1=缺失）
+#   baton-bt-recover --quiet   少打印（systemd 用）
+set -uo pipefail
+
+MAC="${BATON_MAC:-F0:2B:18:87:37:B7}"
+VENDOR="${BATON_VENDOR:-2717}"
+PRODUCT="${BATON_PRODUCT:-32b8}"
+REMOTE_SVC="mi-remote.service"
+
+QUIET=0
+CHECK=0
+for a in "$@"; do
+  case "$a" in
+    --quiet|-q) QUIET=1 ;;
+    --check)    CHECK=1 ;;
+    *) echo "未知参数: $a" >&2; exit 2 ;;
+  esac
+done
+log() { [ "$QUIET" = 1 ] || echo "$@"; }
+
+# 找到遥控器的按键节点（按 VID:PID 2717:32b8 识别，与托盘一致）
+hid_node() {
+  local d v p
+  for d in /sys/class/input/event*; do
+    [ -r "$d/device/id/vendor" ] || continue
+    v=$(cat "$d/device/id/vendor" 2>/dev/null)
+    p=$(cat "$d/device/id/product" 2>/dev/null)
+    if [ "$v" = "$VENDOR" ] && [ "$p" = "$PRODUCT" ]; then
+      basename "$d"
+      return 0
+    fi
+  done
+  return 1
+}
+
+bt_connected() {
+  bluetoothctl info "$MAC" 2>/dev/null | grep -q "Connected: yes"
+}
+
+# 等按键节点出现；$1 = 最多等几秒
+wait_hid() {
+  local i
+  for ((i = 0; i < $1; i++)); do
+    hid_node >/dev/null && return 0
+    sleep 1
+  done
+  return 1
+}
+
+succeed() { log "✅ 按键节点已恢复：/dev/input/$(hid_node)"; exit 0; }
+
+reconnect_soft() {
+  log "  · 轻量重连：停服务 → 断开 → 连接 → 起服务"
+  systemctl --user stop "$REMOTE_SVC" 2>/dev/null
+  bluetoothctl disconnect "$MAC" >/dev/null 2>&1
+  sleep 2
+  bluetoothctl connect "$MAC" >/dev/null 2>&1
+  systemctl --user start "$REMOTE_SVC" 2>/dev/null
+}
+
+reconnect_block() {
+  log "  · block/unblock：强制新建连接"
+  bluetoothctl block   "$MAC" >/dev/null 2>&1
+  sleep 2
+  bluetoothctl unblock "$MAC" >/dev/null 2>&1
+}
+
+restart_bt() {
+  log "  · 重启 bluetooth.service（最后手段）"
+  systemctl --no-ask-password restart bluetooth 2>&1 | sed 's/^/      /'
+  sleep 3
+  bluetoothctl connect "$MAC" >/dev/null 2>&1 || true
+  systemctl --user restart "$REMOTE_SVC" 2>/dev/null
+}
+
+# ------------------------------------------------------------------ 主流程
+if hid_node >/dev/null; then
+  log "按键节点正常：/dev/input/$(hid_node)"
+  exit 0
+fi
+
+if [ "$CHECK" = 1 ]; then
+  log "按键节点缺失"
+  exit 1
+fi
+
+log "按键节点缺失，开始恢复…"
+
+# 1) 正常晚挂载
+wait_hid 8 && succeed
+
+# 2) 蓝牙未连接 → 多半只是遥控器休眠，不动设置
+if ! bt_connected; then
+  log "蓝牙未连接（遥控器可能休眠）：请按遥控器任意键唤醒"
+  wait_hid 8 && succeed
+  exit 3
+fi
+
+# 3) 已连接却没有节点 = 卡死，逐级恢复
+reconnect_soft
+wait_hid 8 && succeed
+
+reconnect_block
+wait_hid 10 && succeed
+
+restart_bt
+wait_hid 15 && succeed
+
+log "❌ 仍未恢复：请按遥控器任意键唤醒，或把遥控器关机再开，然后重跑本脚本"
+exit 1

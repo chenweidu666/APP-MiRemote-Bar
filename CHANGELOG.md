@@ -62,3 +62,4 @@
 - 终端里语音粘贴无效 → 服务参数 `--paste-shortcut ctrl-shift-v`
 - 垫片拉起守护进程时解释器无 `evdev` → 自动挑选带 evdev 的解释器（venv python）
 - 蓝牙设备名变化导致 udev 规则失效、按键静默失效 → 多重匹配
+- **重启后遥控器整只失效（按键 + 语音全无反应）**：BlueZ 的 HID-over-GATT 通道偶尔没挂上 —— 蓝牙显示“已连接”、GATT 里也有 HID 服务，但 `/dev/input` 没有节点。仅“断开重连”清不掉。新增自愈脚本 `scripts/baton-bt-recover`（轻量重连 → `block/unblock` → 重启 `bluetooth.service`，逐级复检），托盘「重连蓝牙（自愈）」改调它，并新增 `baton-recover.service` 在登录后自动修复一次（见 `docs/指南.md` 坑 12）

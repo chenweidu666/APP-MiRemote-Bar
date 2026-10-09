@@ -1,0 +1,22 @@
+// Baton Mi 遥控器：允许本地活动用户免密码重启 bluetooth.service。
+//
+// 为什么需要：蓝牙看门狗在软路径（disconnect+connect）无效时的兜底是重启蓝牙栈，
+// 而 systemctl restart bluetooth 默认要 polkit 授权 —— 桌面上会弹密码框，很烦。
+// 本规则只放开「本地会话中的活动用户」重启/启停 bluetooth.service，不开别的口子。
+//
+// 安装：bash install.sh（会自动装到 /etc/polkit-1/rules.d/）
+// 手动：sudo install -m 644 system/49-baton-bluetooth.rules /etc/polkit-1/rules.d/
+//       （polkit 会自动加载，无需重启服务）
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        subject.local && subject.active) {
+        // manage-units 的 unit 名在 details 里
+        var unit = action.lookup("unit");
+        if (unit == "bluetooth.service") {
+            var verb = action.lookup("verb");
+            if (verb == "start" || verb == "stop" || verb == "restart") {
+                return polkit.Result.YES;
+            }
+        }
+    }
+});

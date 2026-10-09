@@ -84,6 +84,12 @@ if [ "$DO_UDEV" = 1 ]; then
       echo "   ⚠️ udev 写入失败（无 sudo 权限？可用 SUDO_PASS=密码 重跑，或加 --no-udev 跳过）"
       echo "      现有规则未改动，按键仍可工作"
     fi
+    # polkit：让本地活动用户免密码重启 bluetooth.service（看门狗兜底用）
+    if sudo_run install -m 644 "$ROOT/system/49-baton-bluetooth.rules" /etc/polkit-1/rules.d/49-baton-bluetooth.rules; then
+      echo "   已写入 /etc/polkit-1/rules.d/49-baton-bluetooth.rules（重启蓝牙免密码）"
+    else
+      echo "   ⚠️ polkit 规则写入失败（看门狗兜底重启蓝牙时仍会弹密码）"
+    fi
   fi
 else
   echo "== 5/6 跳过 udev（--no-udev）=="
